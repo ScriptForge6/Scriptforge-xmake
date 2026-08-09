@@ -1,3 +1,5 @@
+
+
 target("scriptforge_lib")
 	-- set_kind("static")
     set_kind("binary")
@@ -11,6 +13,8 @@ target("scriptforge_lib")
 
     add_packages("nlohmann_json")
     add_packages("utfcpp")
+
+    add_includedirs("../thirdParty")
 
     set_pcxxheader("Scriptforge.Pch.hpp")
 
