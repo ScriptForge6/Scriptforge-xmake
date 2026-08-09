@@ -16,6 +16,10 @@
  * @date 2026/3/29
  */
 
+module;
+
+#include "Scriptforge.Pch.hpp"
+
 export module Scriptforge;
 
 export import Scriptforge.AntiDebug;
@@ -33,11 +37,11 @@ export import Scriptforge.StringConversion;
 export import Scriptforge.RingBuffer;
 
 
-constexpr std::string_view ProjectName{ "SCRIPT_NAME" };
-constexpr std::string_view ProjectVersion{ "0.1.2-dev-withBug" };
-constexpr std::string_view ProjectContributor{ "Scriptforge" };
-constexpr std::string_view ProjectLicense{ "Apache License 2.0"};
-constexpr std::chrono::year ProjectStartYear{ 2025 };
+constexpr std::string_view ProjectName{ SCRIPT_NAME };
+constexpr std::string_view ProjectVersion{ VERSION };
+constexpr std::string_view ProjectContributor{ AUTHOR };
+constexpr std::string_view ProjectLicense{ LICENSE };
+constexpr std::chrono::year ProjectStartYear{ START_YEAR };
 namespace Scriptforge {
 		inline namespace Version {
 			export Scriptforge::Version::VersionInfo versionInfo{

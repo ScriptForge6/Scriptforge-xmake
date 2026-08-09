@@ -5,5 +5,8 @@ target("scriptforge_test")
         "/Zc:templateScope"
     }, {tools = {"cl"}})
 
+    add_deps("scriptforge_lib")
+    add_includedirs("../scriptforge_lib")
+
 	add_files("*.cpp")
 target_end()

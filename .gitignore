@@ -293,3 +293,6 @@ Scriptforge.AntiDebug.Random.ixx
 .xmake_cache/
 build/
 vsxmake2026/
+
+# vscode
+.vscode/
