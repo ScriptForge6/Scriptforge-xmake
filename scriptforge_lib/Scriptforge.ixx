@@ -18,7 +18,8 @@
 
 module;
 
-#include "Scriptforge.Pch.hpp"
+#include <string_view>
+#include <chrono>
 
 export module Scriptforge;
 

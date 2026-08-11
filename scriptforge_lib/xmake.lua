@@ -6,8 +6,6 @@ target("scriptforge_lib")
         "/Zc:templateScope"
     }, {tools = {"cl"}})
 
-    
-
     if IS_STATIC then
         add_defines("BUILD_STATIC")
     end
