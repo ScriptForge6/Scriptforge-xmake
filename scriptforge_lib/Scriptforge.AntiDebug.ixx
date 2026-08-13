@@ -50,6 +50,7 @@ namespace Scriptforge {
             std::atomic<bool> V2;
             std::mutex V3;
             std::atomic<bool> V4{ false };
+            std::thread m_antiDebugThread;
         };
 
     }

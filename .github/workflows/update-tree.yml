@@ -1,0 +1,108 @@
+name: Auto Update Repo Tree
+# 触发时机：推送代码到main分支 / 手动在Actions页面运行
+on:
+  push:
+  workflow_dispatch:
+
+# 授予读写代码权限，才能提交文件
+permissions:
+  contents: write
+
+env:
+  # 消除开头 Node20 deprecated 警告（不影响功能，仅屏蔽提示）
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+
+jobs:
+  generate-tree:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 完整拉取仓库代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # 关键修复1：绑定当前分支，避免 detached HEAD
+          ref: ${{ github.ref_name }}
+
+      - name: 安装 tree-node-cli
+        run: npm install -g tree-node-cli
+
+      - name: 输出```到repo_tree.md
+        run: echo '```' > repo_tree.md
+
+      - name: 生成目录树，覆盖 repo_tree.md
+        run: tree . -L 8 --ignore ".git,x64,x86,Debug,Release,.vs,GeneratedTools" >> repo_tree.md
+
+      - name: 输出```到repo_tree.md
+        run: echo '```' >> repo_tree.md
+
+      - name: PowerShell 更新README目录树区块
+        shell: pwsh
+        run: |
+         $treeFile = "repo_tree.md"
+         if (-not (Test-Path $treeFile)) {
+             Write-Host "⚠️ $treeFile 不存在，直接跳过更新"
+             exit 0
+         }
+         
+         # 统一使用 UTF8 无BOM 读取，避免编码错乱
+         $treeText = Get-Content $treeFile -Raw -Encoding utf8
+         $readmePath = "README.md"
+         $originReadme = Get-Content $readmePath -Raw -Encoding utf8
+         
+         # 改进正则：显式单行模式，分组清晰
+         $regex = '(?s)(<!-- TREE_START -->).*?(<!-- TREE_END -->)'
+         
+         # 校验标记
+         if (-not ($originReadme -match $regex)) {
+             Write-Error "❌ README.md 未找到 <!-- TREE_START --> / <!-- TREE_END --> 成对标记，终止执行"
+             exit 1
+         }
+
+         # 关键修复：全部用单引号包裹捕获符，避免PowerShell变量解析冲突
+         $replaceTemplate = '${1}' + "`n" + $treeText + "`n" + '${2}'
+         $newReadme = $originReadme -replace $regex, $replaceTemplate
+         
+         # 写入 UTF8 无BOM
+         [System.IO.File]::WriteAllText($readmePath, $newReadme, [System.Text.Encoding]::UTF8)
+         Write-Host "✅ README 目录树区块已更新完成"
+
+      - name: PowerShell 更新README-CN目录树区块
+        shell: pwsh
+        run: |
+         $treeFile = "repo_tree.md"
+         if (-not (Test-Path $treeFile)) {
+             Write-Host "⚠️ $treeFile 不存在，直接跳过更新"
+             exit 0
+         }
+         
+         # 统一使用 UTF8 无BOM 读取，避免编码错乱
+         $treeText = Get-Content $treeFile -Raw -Encoding utf8
+         $readmePath = "README-CN.md"
+         $originReadme = Get-Content $readmePath -Raw -Encoding utf8
+         
+         # 改进正则：显式单行模式，分组清晰
+         $regex = '(?s)(<!-- TREE_START -->).*?(<!-- TREE_END -->)'
+         
+         # 校验标记
+         if (-not ($originReadme -match $regex)) {
+             Write-Error "❌ README-CN.md 未找到 <!-- TREE_START --> / <!-- TREE_END --> 成对标记，终止执行"
+             exit 1
+         }
+
+         # 关键修复：全部用单引号包裹捕获符，避免PowerShell变量解析冲突
+         $replaceTemplate = '${1}' + "`n" + $treeText + "`n" + '${2}'
+         $newReadme = $originReadme -replace $regex, $replaceTemplate
+         
+         # 写入 UTF8 无BOM
+         [System.IO.File]::WriteAllText($readmePath, $newReadme, [System.Text.Encoding]::UTF8)
+         Remove-Item $treeFile -Force
+         Write-Host "✅ README-CN 目录树区块已更新完成"
+
+      - name: 自动提交变更
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: auto refresh repo directory tree"
+          # 关键修复2：指定推送分支，解决 detached HEAD push 失败
+          branch: ${{ github.ref_name }}
+          # 可选：保留你日志里的作者信息，和原有提交保持一致
+          commit_author: ScriptForge666 <221077483+ScriptForge666@users.noreply.github.com>

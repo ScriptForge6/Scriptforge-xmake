@@ -164,19 +164,29 @@ namespace Scriptforge::ADNS {
     ADCL::~ADCL() { stop(); }
 
     void ADCL::F1() {
-        std::lock_guard lock(V3);
-        if (V4) return;
+        if (V4.load(std::memory_order_acquire)) {
+            return;
+        }
 
-        V1 = false;
-        V4 = true;
-        std::thread(&ADCL::antiDebug, this).detach();
+        // 重置状态
+        V1.store(false, std::memory_order_release);
+        V2.store(false, std::memory_order_release);
+        V4.store(true, std::memory_order_release);
+
+        // 启动后台检测线程，立刻返回，异步执行F6(antiDebug)
+        m_antiDebugThread = std::thread(&ADCL::F6, this);
     }
 
     void ADCL::F2() {
         V1 = true;
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+        std::lock_guard lock(V3);
+        if (m_antiDebugThread.joinable()) {
+            m_antiDebugThread.join();
+        }
         V4 = false;
     }
+
 
     bool ADCL::F3() const {
         return V2;
@@ -201,8 +211,8 @@ namespace Scriptforge::ADNS {
     void ADCL::F6() {
         while (!V1) {
             if (isAntiDebug()) {
-				V1 = true;
-				V2 = true;
+                V1.store(true, std::memory_order_release);
+                V2.store(true, std::memory_order_release);
                 killProcess();
             }
 

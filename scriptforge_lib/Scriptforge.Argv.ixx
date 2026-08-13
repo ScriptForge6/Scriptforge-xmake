@@ -143,7 +143,7 @@ namespace Scriptforge::Argv {
         DetectHashCollision::noCommandHashCollision<Hash, Unknown, Cmd...>();
 
     export
-        template<isHash HashT>
+        template<isHash HashT = Hash::FNV_1a_32>
     class ArgvCli {
     public:
         ArgvCli() = default;
