@@ -1,7 +1,9 @@
-target(PRE_NAME)
+includes("../define.lua")
+
+target("pre")
 	set_kind("binary")
 
-	add_defines(string.vformat("RANDOM_FILE=R\"(%s/%s)\"", LIB_DIR, ANTIDEB_RAND_FILE))
+	add_rules("module.shared")
 
-    add_files(string.vformat("%s/main.cpp", PRE_DIR))
+    add_files("main.cpp")
 target_end()

@@ -6,19 +6,39 @@ target(TEST_NAME)
         
     }, {tools = {"cl"}})
 
+    if IS_STATIC then
+        add_defines("BUILD_STATIC")
+    end
+    if IS_MODULE then
+        add_defines("SCRIPTFORGE_MODULE")
+    else
+        add_defines("SCRIPTFORGE_HEAD")
+    end
+
+    set_pcxxheader(path.join(LIB_DIR, "Scriptforge.Pch.hpp"))
+
     if is_plat("windows") then
         add_ldflags("/WHOLEARCHIVE:gtest_main.lib", {tools={"link"}, force = true})
     end
 
-    add_includedirs(LIB_DIR)
+    --add_packages("gtest", {components = {"gtest","gtest_main"}})
+    add_packages("gtest", {components = {"gtest","gtest_main"}, wholearchive = true})
 
-    add_packages("gtest", {components = {"gtest","gtest_main"}})
     add_packages("nlohmann_json")
     add_packages("utfcpp")
 
-    add_files(string.vformat("%s/*.cpp", LIB_DIR))
-	add_files(string.vformat("%s/*.ixx", LIB_DIR))
-    add_files(string.vformat("%s/*.cpp", TEST_DIR))
-    add_files(string.vformat("%s/*.ixx", TEST_DIR))
+    local local_ANTIDEB_RAND_PATH = ANTIDEB_RAND_PATH
+
+    before_build(function (target)
+        import("pre", {always_build = true})
+        pre.run(local_ANTIDEB_RAND_PATH)
+    end)
+
+
+    add_includedirs(LIB_DIR)
+    add_files(path.join(LIB_DIR, "*.ixx"))
+    add_files(path.join(LIB_DIR, "*.cpp"))
+    add_files(path.join(TEST_DIR, "*.ixx"))
+    add_files(path.join(TEST_DIR, "*.cpp"))
 target_end()
 

@@ -3,6 +3,7 @@
 #include <string>
 #include <random>
 #include <cstdint>
+#include<xmi.h>
 
 std::uint32_t generate_rand() {
     // 线程安全 + 真随机初始化
@@ -11,7 +12,9 @@ std::uint32_t generate_rand() {
     return dist(rng);
 }
 
-int main() {
+static int c_run(lua_State* lua) {
+	auto RANDOM_FILE = lua_tostring(lua, 1);
+
     const auto NAMESPACE_RND = generate_rand();
     const auto CLASS_RND = generate_rand();
     const auto FUNC1_RND = generate_rand();
@@ -26,7 +29,9 @@ int main() {
     const auto VAR4_RND = generate_rand();
 
     std::ofstream file(RANDOM_FILE);
-    
+
+	std::cout << "正在写入随机模块到文件: " << RANDOM_FILE << '\n';
+
     if (!file.is_open()) {
         std::cerr << "错误：无法创建文件！\n";
         return 1;
@@ -58,4 +63,14 @@ int main() {
 
     file.close();
     return 0;
+}
+int luaopen(pre, lua_State* lua) {
+    static const luaL_Reg funcs[] = {
+        {"run", c_run},
+        {NULL, NULL}
+    };
+    lua_newtable(lua);
+    // 传递函数列表
+    luaL_setfuncs(lua, funcs, 0);
+    return 1;
 }

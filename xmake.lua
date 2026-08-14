@@ -1,21 +1,4 @@
-SCRIPT_NAME = "Scriptforge-xmake"
-VERSION = "0.1.2-dev-withBug"
-LICENSE = "Apache License 2.0"
-START_YEAR = 2025
-AUTHOR = "Scriptforge"
-IS_STATIC = true
-IS_MODULE = true
-PRE_NAME = "pre"
-LIB_NAME = "scriptforge_lib"
-TEST_NAME = "scriptforge_test"
-PRE_DIR = string.vformat("$(projectdir)/%s", PRE_NAME)
-LIB_DIR = string.vformat("$(projectdir)/%s", LIB_NAME)
-TEST_DIR = string.vformat("$(projectdir)/%s", TEST_NAME)
-PRE_LUA = PRE_DIR .. "/xmake.lua"
-LIB_LUA = LIB_DIR .. "/xmake.lua"
-TEST_LUA = TEST_DIR .. "/xmake.lua"
-
-ANTIDEB_RAND_FILE = "Scriptforge.AntiDebug.Random.ixx"
+includes("define.lua")
 
 set_project(SCRIPT_NAME)
 set_version(VERSION)
@@ -38,6 +21,5 @@ set_defaultmode("mode.debug")
 set_languages("c++23")
 set_warnings("allextra")
 
-includes(PRE_LUA)
 includes(LIB_LUA)
 includes(TEST_LUA)
