@@ -502,6 +502,7 @@ Scriptforge-xmake
 ├── README.md
 ├── assets
 │   └── ScriptForge.png
+├── define.lua
 ├── pre
 │   ├── main.cpp
 │   └── xmake.lua
