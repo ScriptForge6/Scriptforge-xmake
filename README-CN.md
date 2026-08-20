@@ -492,5 +492,58 @@ int main() {
 > `GitHub Actions` 自动生成
 
 <!-- TREE_START -->
-暂未生成
+```
+Scriptforge-xmake
+├── CHANGELOG-CN.md
+├── CHANGELOG.md
+├── LICENSE-THIRD-PARTY.txt
+├── LICENSE.txt
+├── README-CN.md
+├── README.md
+├── assets
+│   └── ScriptForge.png
+├── pre
+│   ├── main.cpp
+│   └── xmake.lua
+├── repo_tree.md
+├── scriptforge_lib
+│   ├── Scriptforge.AntiDebug.RandomDefine.ixx
+│   ├── Scriptforge.AntiDebug.cpp
+│   ├── Scriptforge.AntiDebug.ixx
+│   ├── Scriptforge.Argv.ixx
+│   ├── Scriptforge.Err.ixx
+│   ├── Scriptforge.ErrCode.ixx
+│   ├── Scriptforge.ErrCode.throwError.ixx
+│   ├── Scriptforge.LanguageCode.ixx
+│   ├── Scriptforge.Local.ixx
+│   ├── Scriptforge.Log.ixx
+│   ├── Scriptforge.Msg.ixx
+│   ├── Scriptforge.Pch.hpp
+│   ├── Scriptforge.ProcessPool.ixx
+│   ├── Scriptforge.RingBuffer.ixx
+│   ├── Scriptforge.StringConversion.ixx
+│   ├── Scriptforge.ThreadError.ixx
+│   ├── Scriptforge.Tree.ixx
+│   ├── Scriptforge.Version.ixx
+│   ├── Scriptforge.ixx
+│   ├── lang
+│   │   ├── en.json
+│   │   └── zh.json
+│   ├── xmake.lua
+│   └── 统计代码行数.ps1
+├── scriptforge_test
+│   ├── AntiDebug.Test.ixx
+│   ├── Err.Test.ixx
+│   ├── ErrCode.Test.ixx
+│   ├── ErrCode.cpp
+│   ├── Local.Test.ixx
+│   ├── Msg.Test.ixx
+│   ├── StringConversion.Test.ixx
+│   ├── Test.cpp
+│   ├── ThreadError.Test.ixx
+│   └── xmake.lua
+├── xmake.lua
+└── 更新方向.md
+```
+
 <!-- TREE_END -->
