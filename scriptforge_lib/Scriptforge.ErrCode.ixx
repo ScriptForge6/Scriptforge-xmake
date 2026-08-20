@@ -26,20 +26,20 @@ import Scriptforge.LanguageCode;
 
 namespace Scriptforge::ErrCode {
 	export enum class ErrCode {
-		TreeInvalidNode = 10001,      // Tree0001: Invalid node
-		TreeEmptyNode = 10002,      // Tree0002: Empty node
-		TreeOrphanedNode = 10003,      // Tree0003: Orphaned node
-		LogCannotOpenLogFile = 20001,       // Log0001: Cannot open log file
-		LogIsNotRunning = 20002,       // Log0002: Logger is not running
-		AntiDebugOSNotSupported = 30001,       // AntiDebug0001: Operating system not supported
-		LocalLanguageFileNotFound = 40001,    // Local0001: Language file not found
-		LocalInvalidLanguageFile = 40002,     // Local0002: Invalid language file
-		LocalInvalidLanguageCode = 40003,     // Local0003: Invalid language code
+		TreeInvalidNode = 10001,                // Tree0001: Invalid node
+		TreeEmptyNode = 10002,                  // Tree0002: Empty node
+		TreeOrphanedNode = 10003,               // Tree0003: Orphaned node
+		LogCannotOpenLogFile = 20001,           // Log0001: Cannot open log file
+		LogIsNotRunning = 20002,                // Log0002: Logger is not running
+		AntiDebugOSNotSupported = 30001,        // AntiDebug0001: Operating system not supported
+		LocalLanguageFileNotFound = 40001,      // Local0001: Language file not found
+		LocalInvalidLanguageFile = 40002,       // Local0002: Invalid language file
+		LocalInvalidLanguageCode = 40003,       // Local0003: Invalid language code
 		RingBufferCapacityBeZero = 50001,       // RingBuffer0001: Capacity must be greater than 0
-		ProcessPoolInvalidPoolSize = 60001,       // ProcessPool0002: Invalid pool size
-		ThreadErrorThreadAlreadyRunning = 70001,       // ThreadError0001: Thread is already running
-		ThreadErrorThreadNoTask = 70002,       // ThreadError0002: Thread is not running
-
+		ProcessPoolInvalidPoolSize = 60001,     // ProcessPool0002: Invalid pool size
+		ThreadErrorThreadAlreadyRunning = 70001,// ThreadError0001: Thread is already running
+		ThreadErrorThreadNoTask = 70002,        // ThreadError0002: Thread is not running
+		Base64Empty = 80001,                    // Base640001: Base64 object is empty
 	};
 	export std::string to_string(ErrCode code) {
 		std::string result;
@@ -68,6 +68,9 @@ namespace Scriptforge::ErrCode {
 			break;
 		case 7:
 			result += "ThreadError";
+			break;
+		case 8:
+			result += "Base64";
 			break;
 		default:
 			return "Unknown error";

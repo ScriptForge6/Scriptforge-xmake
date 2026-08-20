@@ -10,8 +10,6 @@
 // limitations under the License.
 module;
 
-#include <cstddef>
-
 #include "Scriptforge.Pch.hpp"
 
 export module Scriptforge.RingBuffer;
@@ -19,9 +17,10 @@ export module Scriptforge.RingBuffer;
 import Scriptforge.Err;
 import Scriptforge.ErrCode;
 import Scriptforge.ErrCode.throwError;
-import Scriptforge.Msg;
 import Scriptforge.Local;
 import Scriptforge.Log;
+import Scriptforge.Msg;
+
 namespace Scriptforge {
 	inline namespace RingBuffer {
 		export 

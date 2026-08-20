@@ -18,8 +18,6 @@
 
 module;
 
-#include <ctime>
-
 #include "Scriptforge.Pch.hpp"
 
 export module Scriptforge.Msg;

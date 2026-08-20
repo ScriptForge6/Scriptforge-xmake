@@ -251,8 +251,8 @@ module;
 
 export module Scriptforge.Log;
 import Scriptforge.Local;
-import Scriptforge.ThreadError;
 import Scriptforge.Msg;
+import Scriptforge.ThreadError;
 
 namespace Scriptforge {
     inline namespace Log {

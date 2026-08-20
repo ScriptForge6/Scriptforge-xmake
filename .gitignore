@@ -292,6 +292,7 @@ Scriptforge.AntiDebug.Random.ixx
 .xmake/
 .xmake_cache/
 build/
+vsxmake2022/
 vsxmake2026/
 
 # vscode

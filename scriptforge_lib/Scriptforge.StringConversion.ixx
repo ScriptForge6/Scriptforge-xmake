@@ -11,16 +11,16 @@
 
 /**
  * @file Scriptforge.StringConversion.ixx
- * @brief 定义了 `Scriptforge::StringConversion` 模块，其中包含了一系列字符串转换函数，用于在不同的字符串类型之间进行转换，包括 `std::string`、`std::u8string`、`std::u16string`、`std::u32string` 和 `std::wstring`。这些函数使用了 UTF-8 编码作为中间格式，确保了转换的正确性和兼容性。此外，还提供了一个通用的 `str_convert` 模板函数，可以根据目标类型和源类型自动选择合适的转换函数进���转换。
+ * @brief 定义了 `Scriptforge::StringConversion` 模块，其中包含了一系列字符串转换函数，用于在不同的字符串类型之间进行转换，包括 `std::string`、`std::u8string`、`std::u16string`、`std::u32string` 和 `std::wstring`。这些函数使用了 UTF-8 编码作为中间格式，确保了转换的正确性和兼容性。此外，还提供了一个通用的 `str_convert` 模板函数，可以根据目标类型和源类型自动选择合适的转换函数进行转换。
  * @author Scriptforge
  * @date 2026/4/28
  */
 
 module;
 
-#include <utf8/cpp20.h>
-
 #include "Scriptforge.Pch.hpp"
+
+#include <utf8/cpp20.h>
 
 export module Scriptforge.StringConversion;
 

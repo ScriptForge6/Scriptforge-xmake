@@ -18,8 +18,9 @@
 
 module;
 
-#include<gtest/gtest.h>
 #include "Scriptforge.Pch.hpp"
+
+#include<gtest/gtest.h>
 
 export module Err.Test;
 

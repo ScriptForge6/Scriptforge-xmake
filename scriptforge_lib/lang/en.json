@@ -1,6 +1,6 @@
 {
   "language_name": "English",
-  "Error": {
+  "SFError": {
     "10001": "Node not found",
     "10002": "Empty node",
     "10003": "Orphaned node",
@@ -9,6 +9,7 @@
     "50001": "Capacity must be greater than 0",
     "60001": "Invalid pool size",
     "70001": "The thread has already been running",
-    "70002": "No task function assigned to the thread"
+    "70002": "No task function assigned to the thread",
+    "80001": "Base64 object is empty"
   }
 }

@@ -18,8 +18,8 @@
 
 module;
 
-#include <string_view>
 #include <chrono>
+#include <string_view>
 
 export module Scriptforge;
 

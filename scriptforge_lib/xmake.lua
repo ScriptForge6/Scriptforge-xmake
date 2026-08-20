@@ -28,7 +28,7 @@ target(LIB_NAME)
 
     local local_ANTIDEB_RAND_PATH = ANTIDEB_RAND_PATH
 
-    before_build(function (target)
+    on_load(function (target)
         import("pre", {always_build = true})
         pre.run(local_ANTIDEB_RAND_PATH)
     end)

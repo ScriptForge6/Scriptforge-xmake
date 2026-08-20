@@ -17,8 +17,6 @@
  */
 module;
 
-#include <cstddef>
-
 #include "Scriptforge.Pch.hpp"
 
 export module Scriptforge.Tree;

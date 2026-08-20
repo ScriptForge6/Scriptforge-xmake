@@ -20,17 +20,17 @@ module;
 #include "Scriptforge.Pch.hpp"
 
 export module Scriptforge.ErrCode.throwError;
+import Scriptforge.Err;
 import Scriptforge.ErrCode;
 import Scriptforge.Msg;
 import Scriptforge.LanguageCode;
 import Scriptforge.Local;
-import Scriptforge.Err;
 
 namespace Scriptforge::ErrCode {
     export
         [[noreturn]] void throwError(
             ErrCode code,
-            const std::string& func,
+            std::string_view func,
             const Scriptforge::Local::Lang& lang,
             Scriptforge::Msg::InformationLevel level = Scriptforge::Msg::InformationLevel::Error
         );
@@ -49,14 +49,14 @@ namespace Scriptforge::ErrCode {
     
     void throwError(
         ErrCode code,
-        const std::string& func,
+        std::string_view func,
         const Scriptforge::Local::Lang& lang,
         Scriptforge::Msg::InformationLevel level
     ) {
-        std::string baseStr = lang.atJ<std::string>("Error").at(std::to_string(int(code)));
+        std::string baseStr = lang.atJ("SFError").at(std::to_string(int(code)));
         throw Scriptforge::Err::BasicError<ErrCode> {
             code,
-            func + ": " + baseStr,
+            std::string(func) + ": " + baseStr,
             level
         };
     }
@@ -69,10 +69,10 @@ namespace Scriptforge::ErrCode {
         Scriptforge::Msg::InformationLevel level,
         Args&&... args
     ) {
-        std::string baseStr = lang.atJ<std::string>("Error").format<std::string>(std::to_string(int(code)), std::forward<Args>(args)...);
+        std::string baseStr = std::format(lang.atJ("SFError").at(std::to_string(int(code))), std::forward<Args>(args)...);
         throw Scriptforge::Err::BasicError<ErrCode> {
             code,
-            func + ": " + baseStr,
+            std::string(func) + ": " + baseStr,
 			level
 		};
     }

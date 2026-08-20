@@ -39,6 +39,9 @@
     - [**直接使用**](#直接使用)
     - [**使用自己的反作弊检测逻辑和自杀逻辑**](#使用自己的反作弊检测逻辑和自杀逻辑)
 - [**Argv**](#argv)
+- [**Base64**](#base64)
+    - [**直接使用Base64**](#直接使用Base64)
+    - [**使用BasicBase64以做出特殊的编码格式（不推荐）**](#使用BasicBase64以做出特殊的编码格式（不推荐）)
 - [**Err**](#err)
     - [**直接使用Error**](#直接使用error)
     - [**使用BasicError**](#使用basicerror)
@@ -204,6 +207,44 @@ int main(int argc, char* argv[]) {
 > - 在项目内内置了`FNV_1a_32`，  
 >   可以直接使用`Scriptforge::Argv::ArgvCli<>`定义。
 > - 也可以使用`init`函数初始化。
+
+---
+
+### Base64
+
+#### 直接使用Base64
+
+`Base64`定义如下：
+```cpp
+using Scriptforge::Base::Base64 = Scriptforge::Base::BasicBase64<CharSet::Base64Set>;
+```
+
+示例：
+
+```cpp
+import Scriptforge.Base64;
+import Scriptforge.Local;
+
+int main() {
+    std::vector<unsigned char> raw = { 'H','e','l','l','o',',',' ','W','o','r','l','d','!' };
+    Scriptforge::Base::Base64 b64_1{ raw/*, Scriptforge::Local::Lang{}*/ };
+    std::cout << b64_1.encode() << std::endl;      //输出：SGVsbG8sIFdvcmxk==
+    Scriptforge::Base::Base64 b64_2{ "SGVsbG8sIFdvcmxk=="/*, Scriptforge::Local::Lang{}*/ };
+    std::vector<unsigned char> decode = b64_1.decode();
+    std::cout 
+    << std::string(decode.begin(),decode.end())   //输出：Hello, World!
+    << std::endl;
+    return 0;
+}
+```
+
+#### 使用BasicBase64以做出特殊的编码格式（不推荐）
+
+`BasicBase64`定义如下：
+```cpp
+template <Scriptforge::Base::isBaseCharSet CharSet>
+class Scriptforge::Base::BasicBase64;
+```
 
 ---
 
@@ -492,5 +533,58 @@ int main() {
 > `GitHub Actions` 自动生成
 
 <!-- TREE_START -->
-暂未生成
+```
+Scriptforge-xmake
+├── CHANGELOG-CN.md
+├── CHANGELOG.md
+├── LICENSE-THIRD-PARTY.txt
+├── LICENSE.txt
+├── README-CN.md
+├── README.md
+├── assets
+│   └── ScriptForge.png
+├── pre
+│   ├── main.cpp
+│   └── xmake.lua
+├── repo_tree.md
+├── scriptforge_lib
+│   ├── Scriptforge.AntiDebug.RandomDefine.ixx
+│   ├── Scriptforge.AntiDebug.cpp
+│   ├── Scriptforge.AntiDebug.ixx
+│   ├── Scriptforge.Argv.ixx
+│   ├── Scriptforge.Err.ixx
+│   ├── Scriptforge.ErrCode.ixx
+│   ├── Scriptforge.ErrCode.throwError.ixx
+│   ├── Scriptforge.LanguageCode.ixx
+│   ├── Scriptforge.Local.ixx
+│   ├── Scriptforge.Log.ixx
+│   ├── Scriptforge.Msg.ixx
+│   ├── Scriptforge.Pch.hpp
+│   ├── Scriptforge.ProcessPool.ixx
+│   ├── Scriptforge.RingBuffer.ixx
+│   ├── Scriptforge.StringConversion.ixx
+│   ├── Scriptforge.ThreadError.ixx
+│   ├── Scriptforge.Tree.ixx
+│   ├── Scriptforge.Version.ixx
+│   ├── Scriptforge.ixx
+│   ├── lang
+│   │   ├── en.json
+│   │   └── zh.json
+│   ├── xmake.lua
+│   └── 统计代码行数.ps1
+├── scriptforge_test
+│   ├── AntiDebug.Test.ixx
+│   ├── Err.Test.ixx
+│   ├── ErrCode.Test.ixx
+│   ├── ErrCode.cpp
+│   ├── Local.Test.ixx
+│   ├── Msg.Test.ixx
+│   ├── StringConversion.Test.ixx
+│   ├── Test.cpp
+│   ├── ThreadError.Test.ixx
+│   └── xmake.lua
+├── xmake.lua
+└── 更新方向.md
+```
+
 <!-- TREE_END -->

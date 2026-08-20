@@ -14,10 +14,10 @@ module;
 
 export module Scriptforge.ThreadError;
 
-import Scriptforge.Local;
 import Scriptforge.Err;
 import Scriptforge.ErrCode;
 import Scriptforge.ErrCode.throwError;
+import Scriptforge.Local;
 import Scriptforge.Msg;
 
 namespace Scriptforge {

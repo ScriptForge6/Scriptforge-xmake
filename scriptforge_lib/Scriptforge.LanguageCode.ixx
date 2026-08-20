@@ -107,6 +107,8 @@ namespace Scriptforge::LanguageCode {
         Zulu = 0x35
     };
 
+    export Language neutral = Language::English;
+
     /* -------------------------------------------------------------
      *  语言名称到枚举的映射
      * ------------------------------------------------------------- */

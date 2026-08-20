@@ -17,7 +17,9 @@
 */
 
 export module Scriptforge.AntiDebug.RandomDefine;
+
 import Scriptforge.AntiDebug.Random; // This file will be created when you build the target or run the target "pre".
+
 #define CAT2(a, b) a##b
 #define CAT(a, b)  CAT2(a, b)
 #define ADNS    CAT(adns, NS_RANDOM)

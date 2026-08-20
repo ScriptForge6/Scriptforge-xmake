@@ -18,6 +18,7 @@
 
  // Warning: It is only compatible with Windows!
 module;
+
 #include "Scriptforge.Pch.hpp"
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -25,7 +26,6 @@ module;
 #include <tlhelp32.h>
 #include <intrin.h>
 #include <psapi.h>
-#include <cstdint>
 
 #ifndef NT_SUCCESS
 #define NT_SUCCESS(Status) (((NTSTATUS)(Status)) >= 0)
@@ -33,8 +33,8 @@ module;
 #endif
 
 module Scriptforge.AntiDebug;
-import Scriptforge.AntiDebug.RandomDefine;
 
+import Scriptforge.AntiDebug.RandomDefine;
 import Scriptforge.Local;
 
 namespace Scriptforge::ADNS {

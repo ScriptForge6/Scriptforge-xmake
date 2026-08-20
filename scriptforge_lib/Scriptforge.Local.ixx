@@ -17,16 +17,17 @@
  */
 module;
 
-#include <nlohmann/json.hpp>
-
 #include "Scriptforge.Pch.hpp"
+
+#include <nlohmann/json.hpp>
 
 export module Scriptforge.Local;
 
-import Scriptforge.StringConversion;
 import Scriptforge.Err;
 import Scriptforge.ErrCode;
 import Scriptforge.LanguageCode;
+import Scriptforge.StringConversion;
+
 namespace fs = std::filesystem;
 using json = nlohmann::json;
 using namespace Scriptforge::StringConversion;
@@ -34,20 +35,10 @@ using namespace Scriptforge::StringConversion;
 namespace Scriptforge {
     inline namespace Local {
 
-        export class JsonWithFormat : public nlohmann::json {
-        public:
-            using nlohmann::json::json;
-            JsonWithFormat(const nlohmann::json& j);
+        [[noreturn]] void throwErrWithoutJson(Scriptforge::ErrCode::ErrCode code, std::string_view func, std::string_view message);
+        [[noreturn]] void throwFileNotFoundError(const fs::path& p, Scriptforge::LanguageCode::Language lang, std::string_view func);
+        [[noreturn]] void throwInvalidFileError(const fs::path& p, Scriptforge::LanguageCode::Language lang, std::string_view func);
 
-            template<typename T, typename... Args>
-                requires is_basic_string<T>
-            T format(const T& key, Args&&... args) const;
-            operator json() const;
-        };
-
-        export [[noreturn]] void throwErrWithoutJson(Scriptforge::ErrCode::ErrCode code, const std::string& func, const std::string& message); //edit:added "export "
-        [[noreturn]] void throwFileNotFoundError(const fs::path& p, Scriptforge::LanguageCode::Language lang, const std::string& func);
-        [[noreturn]] void throwInvalidFileError(const fs::path& p, Scriptforge::LanguageCode::Language lang, const std::string& func);
 
         export class Lang {
         public:
@@ -55,43 +46,24 @@ namespace Scriptforge {
             void reload();
             void setLocale(const Scriptforge::LanguageCode::Language lang);
             Scriptforge::LanguageCode::Language getLanguageCode() const;
-            template<typename T>
-                requires is_basic_string<T>
-            T getLanguageNameISO639_1() const;
-            template<typename T>
-                requires is_basic_string<T>
-            T getLanguageName() const;
+            std::string getLanguageNameISO639_1() const;
+            std::string getLanguageName() const;
             fs::path getLangPath() const;
             void setLangPath(const fs::path& path);
-            template<typename T>
-                requires is_basic_string<T>
-            T at(const T& key) const;
-            template<typename T>
-                requires is_basic_string<T>
-            const JsonWithFormat atJ(const T& key) const;
-            template<typename T>
-                requires is_basic_string<T>
-            T value(const T& key, const T& defaultValue) const;
-            template<typename T, typename... Args>
-                requires is_basic_string<T>
-            T format(const T& key, Args&&... args) const;
-            template<typename T>
-                requires is_basic_string<T>
-            bool has(const T& key) const;
-            template<typename T>
-                requires is_basic_string<T>
-            std::vector<T> getKeys() const;
-            const JsonWithFormat& getJson() const;
+            std::string at(std::string_view key) const;
+            const json atJ(std::string_view key) const;
+            std::string value(std::string_view key, std::string_view defaultValue) const;
+            bool has(std::string_view key) const;
+            std::vector<std::string> getKeys() const;
+            const json& getJson() const;
             bool isLoaded() const;
-            template<typename T>
-                requires is_basic_string<T>
-            JsonWithFormat operator[](const T& key);
+            json operator[](std::string_view key);
         private:
             void loadLanguageFile(Scriptforge::LanguageCode::Language lang, fs::path path);
             void LanguageIsLegal(Scriptforge::LanguageCode::Language lang) const;
             void pathIsLegal(const fs::path& path) const;
             Scriptforge::LanguageCode::Language m_lang;
-            JsonWithFormat j;
+            json j;
             fs::path m_path;
         };
 
@@ -103,30 +75,10 @@ namespace Scriptforge {
 namespace Scriptforge {
     inline namespace Local {
 
-        JsonWithFormat::JsonWithFormat(const nlohmann::json& j)
-            : nlohmann::json(j)
-        {}
-        template<typename T, typename... Args>
-            requires is_basic_string<T>
-        T JsonWithFormat::format(const T& key, Args&&... args) const {
-            std::string fmt = value(key, key);
-
-            std::string formatted = std::vformat(
-                std::move(fmt),
-                std::make_format_args(std::forward<Args>(args)...)
-            );
-
-            return str_convert<T, std::string>(formatted);
+        [[noreturn]] void throwErrWithoutJson(Scriptforge::ErrCode::ErrCode code, std::string_view func, std::string_view message) {
+            throw Scriptforge::BasicError<Scriptforge::ErrCode::ErrCode>{ code, std::string(func) + ": " + std::string(message) };
         }
-
-        JsonWithFormat::operator json() const {
-            return static_cast<json>(*this);
-        }
-
-        [[noreturn]] void throwErrWithoutJson(Scriptforge::ErrCode::ErrCode code, const std::string& func, const std::string& message) {
-            throw Scriptforge::BasicError<Scriptforge::ErrCode::ErrCode>{ code, func + ": " + message };
-        }
-        [[noreturn]] void throwFileNotFoundError(const fs::path& p, Scriptforge::LanguageCode::Language lang, const std::string& func) {
+        [[noreturn]] void throwFileNotFoundError(const fs::path& p, Scriptforge::LanguageCode::Language lang, std::string_view func) {
             if (lang == Scriptforge::LanguageCode::Language::Chinese) {
                 throwErrWithoutJson(Scriptforge::ErrCode::ErrCode::LocalLanguageFileNotFound, func, "指定的语言文件不存在: " + p.string());
             }
@@ -134,7 +86,7 @@ namespace Scriptforge {
                 throwErrWithoutJson(Scriptforge::ErrCode::ErrCode::LocalLanguageFileNotFound, func, "The specified language file does not exist: " + p.string());
             }
         }
-        [[noreturn]] void throwInvalidFileError(const fs::path& p, Scriptforge::LanguageCode::Language lang, const std::string& func) {
+        [[noreturn]] void throwInvalidFileError(const fs::path& p, Scriptforge::LanguageCode::Language lang, std::string_view func) {
             if (lang == Scriptforge::LanguageCode::Language::Chinese) {
                 throwErrWithoutJson(Scriptforge::ErrCode::ErrCode::LocalInvalidLanguageFile, func, "指定的语言文件无效: " + p.string());
             }
@@ -163,16 +115,15 @@ namespace Scriptforge {
             return m_lang;
         }
 
-        template<typename T>
-            requires is_basic_string<T>
-        T Lang::getLanguageNameISO639_1() const {
-            return str_convert<T, std::string>(Scriptforge::LanguageCode::ENUM_TO_ISO639_1().at(m_lang));
+        std::string Lang::getLanguageNameISO639_1() const {
+            if (m_lang == Scriptforge::LanguageCode::Language::Neutral) {
+                return Scriptforge::LanguageCode::ENUM_TO_ISO639_1().at(Scriptforge::LanguageCode::neutral);
+            }
+            return Scriptforge::LanguageCode::ENUM_TO_ISO639_1().at(m_lang);
         }
-
-        template<typename T>
-            requires is_basic_string<T>
-        T Lang::getLanguageName() const {
-            return str_convert<T>(j.value("language_name", Scriptforge::LanguageCode::ENUM_TO_ISO639_1().at(m_lang)));
+        
+        std::string Lang::getLanguageName() const {
+            return j.value("language_name", Scriptforge::LanguageCode::ENUM_TO_ISO639_1().at(m_lang));
         }
 
 
@@ -185,56 +136,39 @@ namespace Scriptforge {
         }
 
 
-        template<typename T>
-            requires is_basic_string<T>
-        T Lang::at(const T& key) const {
-            return str_convert<T, std::string>(j.at(str_convert<std::string, T>(key)));
+        std::string Lang::at(std::string_view key) const {
+            return j.at(key);
         }
 
-        template<typename T>
-            requires is_basic_string<T>
-        const JsonWithFormat Lang::atJ(const T& key) const {
-            return JsonWithFormat(j.at(str_convert<std::string>(key)));
+        const json Lang::atJ(std::string_view key) const {
+            return j.at(key);
         }
 
-        template<typename T>
-            requires is_basic_string<T>
-        T Lang::value(const T& key, const T& defaultValue) const {
-            return str_convert<T, std::string>(j.value(str_convert<std::string, T>(key), str_convert<std::string, T>(defaultValue)));
+        std::string Lang::value(std::string_view key, std::string_view defaultValue) const {
+            return std::string(j.value(key, defaultValue));
         }
 
 
-        template<typename T, typename... Args>
-            requires is_basic_string<T>
-        T Lang::format(const T& key, Args&&... args) const {
-            return j.format(key, std::forward<Args>(args)...);
+        bool Lang::has(std::string_view key) const {
+            return j.contains(key);
         }
 
 
-        template<typename T>
-            requires is_basic_string<T>
-        bool Lang::has(const T& key) const {
-            return j.contains(str_convert<std::string>(key));
-        }
-
-
-        template<typename T>
-            requires is_basic_string<T>
-        std::vector<T> Lang::getKeys() const {
+        std::vector<std::string> Lang::getKeys() const {
             const auto& obj = j.get_ref<const nlohmann::json::object_t&>();
 
-            std::vector<T> keys;
+            std::vector<std::string> keys;
             keys.reserve(obj.size());
 
             for (const auto& kv : obj) {
-                keys.emplace_back(str_convert<T, std::string>(kv.first));
+                keys.emplace_back(kv.first);
             }
 
             return keys;
         }
 
 
-        const JsonWithFormat& Lang::getJson() const {
+        const json& Lang::getJson() const {
             return j;
         }
 
@@ -243,10 +177,8 @@ namespace Scriptforge {
         }
 
 
-        template<typename T>
-            requires is_basic_string<T>
-        JsonWithFormat Lang::operator[](const T& key) {
-            return JsonWithFormat(j[str_convert<std::string>(key)]);
+        json Lang::operator[](std::string_view key) {
+            return json(j[key]);
         }
 
 
@@ -256,7 +188,7 @@ namespace Scriptforge {
             LanguageIsLegal(lang);
             m_lang = lang;
 
-            auto langCode = getLanguageNameISO639_1<std::string>();
+            auto langCode = getLanguageNameISO639_1();
             fs::path filename = path / (langCode + ".json");
 
             pathIsLegal(filename);
