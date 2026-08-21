@@ -19,6 +19,7 @@
  // Warning: It is only compatible with Windows!
 module;
 
+#include "Scriptforge.Define.hpp"
 #include "Scriptforge.Pch.hpp"
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -37,7 +38,8 @@ module Scriptforge.AntiDebug;
 import Scriptforge.AntiDebug.RandomDefine;
 import Scriptforge.Local;
 
-namespace Scriptforge::ADNS {
+_SF_BEGIN
+namespace ADNS {
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable: 4702)
@@ -227,3 +229,4 @@ namespace Scriptforge::ADNS {
 #pragma warning(pop)
 #endif
 }
+_SF_END

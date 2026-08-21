@@ -17,45 +17,46 @@
  */
 module;
 
+#include "Scriptforge.Define.hpp"
 #include "Scriptforge.Pch.hpp"
 
 export module Scriptforge.AntiDebug;
 import Scriptforge.AntiDebug.RandomDefine;
 
-namespace Scriptforge {
-    inline namespace ADNS {
-        export class ADCL {
-        public:
-			ADCL();
-            virtual ~ADCL();
+_SF_BEGIN
+namespace ADNS {
+    export class ADCL {
+    public:
+        ADCL();
+        virtual ~ADCL();
 
-            void F1();
-			void F2();
-            bool F3() const;
-			void start() { F1(); }
-			void stop() { F2(); }
-			bool isDebuggerPresent() const { return F3(); }
+        void F1();
+        void F2();
+        bool F3() const;
+        void start() { F1(); }
+        void stop() { F2(); }
+        bool isDebuggerPresent() const { return F3(); }
 
-        private:
-            virtual bool F4() noexcept;
+    private:
+        virtual bool F4() noexcept;
 
-            virtual void F5() noexcept;
-            void F6();
+        virtual void F5() noexcept;
+        void F6();
 
-			bool isAntiDebug() noexcept { return F4(); }
-            void killProcess() noexcept { F5(); }
-			void antiDebug() { F6(); }
+        bool isAntiDebug() noexcept { return F4(); }
+        void killProcess() noexcept { F5(); }
+        void antiDebug() { F6(); }
 
-            std::atomic<bool> V1;
-            std::atomic<bool> V2;
-            std::mutex V3;
-            std::atomic<bool> V4{ false };
-            std::thread m_antiDebugThread;
-        };
+        std::atomic<bool> V1;
+        std::atomic<bool> V2;
+        std::mutex V3;
+        std::atomic<bool> V4{ false };
+        std::thread m_antiDebugThread;
+    };
 
-    }
-    inline namespace AntiDebug {
-        export using AntiDebugger = ADNS::ADCL;
-    }
-    
 }
+inline namespace AntiDebug {
+    export using AntiDebugger = ADNS::ADCL;
+}
+    
+_SF_END
