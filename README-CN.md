@@ -555,6 +555,7 @@ Scriptforge-xmake
 │   ├── Scriptforge.Argv.ixx
 │   ├── Scriptforge.Base64.ixx
 │   ├── Scriptforge.ByteBuffer.ixx
+│   ├── Scriptforge.Define.hpp
 │   ├── Scriptforge.Err.ixx
 │   ├── Scriptforge.ErrCode.ixx
 │   ├── Scriptforge.ErrCode.throwError.ixx
