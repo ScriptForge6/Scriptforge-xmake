@@ -4,6 +4,7 @@
 #define _SF_BEGIN namespace Scriptforge {
 #define _SF_END }
 #define _SF /*::*/Scriptforge::
+#define _SF_EXPORT export
 
 
 #endif

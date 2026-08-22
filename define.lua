@@ -16,6 +16,8 @@ PRE_LUA = path.join(PRE_DIR, "xmake.lua")
 LIB_LUA = path.join(LIB_DIR, "xmake.lua")
 TEST_LUA = path.join(TEST_DIR, "xmake.lua")
 
+LANG = "lang"
 ANTIDEB_RAND_FILE = "Scriptforge.AntiDebug.Random.ixx"
 
-ANTIDEB_RAND_PATH = path.join(LIB_DIR, ANTIDEB_RAND_FILE)
+LANG_DIR = path.join(LIB_DIR, LANG)
+ANTIDEB_RAND_DIR = path.join(LIB_DIR, ANTIDEB_RAND_FILE)

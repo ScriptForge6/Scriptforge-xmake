@@ -19,18 +19,18 @@ target(LIB_NAME)
     
     --add_deps(PRE_NAME)
     
-
+    add_extrafiles(LANG_DIR)
     
     add_packages("nlohmann_json")
     add_packages("utfcpp")
 
     set_pcxxheader(path.join(LIB_DIR, "Scriptforge.Pch.hpp"))
 
-    local local_ANTIDEB_RAND_PATH = ANTIDEB_RAND_PATH
+    local local_ANTIDEB_RAND_DIR = ANTIDEB_RAND_DIR
 
     on_load(function (target)
         import("pre", {always_build = true})
-        pre.run(local_ANTIDEB_RAND_PATH)
+        pre.run(local_ANTIDEB_RAND_DIR)
     end)
     
     add_files(path.join(LIB_DIR, "*.ixx"))

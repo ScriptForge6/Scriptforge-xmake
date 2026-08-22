@@ -18,84 +18,91 @@
 
 module;
 
+#include "Scriptforge.Define.hpp"
 #include "Scriptforge.Pch.hpp"
+
+#define _SF_MSG_BEGIN _SF_BEGIN inline namespace Msg {
+#define _SF_MSG_END   _SF_END }
+
+#define _SF_MSG _SF Msg::
+#define _SF_MESSAGE_A _SF_MSG BasicMessage<T, Clock>
+#define _SF_MESSAGE _SF_MSG BasicMessage<T, Clock>::
+#define _SF_MESSAGE_TEM_A template <typename T, typename Clock>
+#define _SF_MESSAGE_TEM _SF_MESSAGE_TEM_A \
+                          requires MessageRequires<T, Clock>
 
 export module Scriptforge.Msg;
 
-namespace Scriptforge {
-	inline namespace Msg {
-		export enum class InformationLevel {
-			Debug,
-			Info,
-			Warning,
-			Error,
-			Critical
-		};
+_SF_MSG_BEGIN
+export enum class InformationLevel {
+	Debug,
+	Info,
+	Warning,
+	Error,
+	Critical
+};
 
-		export std::string getInformationLevel(InformationLevel level) {
-			switch (level) {
-			case InformationLevel::Debug:
-				return "Debug";
-			case InformationLevel::Info:
-				return "Info";
-			case InformationLevel::Warning:
-				return "Warning";
-			case InformationLevel::Error:
-				return "Error";
-			case InformationLevel::Critical:
-				return "Critical";
-			default:
-				return "Unknown";
-			}
-		}
-
-		export
-			template <typename T, typename Clock>
-		concept MessageRequires =
-			std::copyable<T> &&
-			std::copyable<Clock> &&
-			requires {
-			typename Clock::time_point;
-			{ Clock::now() } -> std::convertible_to<typename Clock::time_point>;
-			//{ Clock::to_time_t(std::declval<typename Clock::time_point>()) } -> std::convertible_to<typename time_t>;
-		};
-
-		export
-			template <typename T = std::string, typename Clock = std::chrono::system_clock>
-			requires MessageRequires<T, Clock>
-		class BasicMessage {
-		public:
-			using TimePoint = typename Clock::time_point;
-			BasicMessage(const T& msg = T{}, InformationLevel level = InformationLevel::Info, TimePoint tp = Clock::now());
-			BasicMessage(T&& msg, InformationLevel level = InformationLevel::Info, TimePoint tp = Clock::now());
-			const T& message() const noexcept;
-			InformationLevel level() const noexcept;
-			TimePoint time() const noexcept;
-		private:
-			T m_msg;
-			InformationLevel m_level;
-			TimePoint m_time;
-		};
-
-		export
-			template <typename T, typename Clock>
-			requires MessageRequires<T, Clock>&&
-			requires { Clock::to_time_t(std::declval<typename Clock::time_point>()); }&&
-			requires { !std::is_same_v<Clock, std::chrono::steady_clock>; }
-		std::ostream& operator<<(std::ostream& os, const BasicMessage<T, Clock>& msg);
-
-		export
-			template <typename T, typename Clock>
-			requires MessageRequires<T, Clock>&&
-		std::same_as<Clock, std::chrono::steady_clock>
-			std::ostream& operator<<(std::ostream& os, const BasicMessage<T, Clock>& msg);
-
-		export using Message = BasicMessage<>;
-
-
+export std::string getInformationLevel(InformationLevel level) {
+	switch (level) {
+	case InformationLevel::Debug:
+		return "Debug";
+	case InformationLevel::Info:
+		return "Info";
+	case InformationLevel::Warning:
+		return "Warning";
+	case InformationLevel::Error:
+		return "Error";
+	case InformationLevel::Critical:
+		return "Critical";
+	default:
+		return "Unknown";
 	}
-
 }
+
+export
+_SF_MESSAGE_TEM_A
+concept MessageRequires =
+std::copyable<T> &&
+std::copyable<Clock> &&
+	requires {
+	typename Clock::time_point;
+	{ Clock::now() } -> std::convertible_to<typename Clock::time_point>;
+	//{ Clock::to_time_t(std::declval<typename Clock::time_point>()) } -> std::convertible_to<typename time_t>;
+};
+
+export
+template <typename T = std::string, typename Clock = std::chrono::system_clock>
+	requires MessageRequires<T, Clock>
+class BasicMessage {
+public:
+	using TimePoint = typename Clock::time_point;
+	BasicMessage(const T& msg = T{}, InformationLevel level = InformationLevel::Info, TimePoint tp = Clock::now());
+	BasicMessage(T&& msg, InformationLevel level = InformationLevel::Info, TimePoint tp = Clock::now());
+	const T& message() const noexcept;
+	InformationLevel level() const noexcept;
+	TimePoint time() const noexcept;
+private:
+	T m_msg;
+	InformationLevel m_level;
+	TimePoint m_time;
+};
+
+export
+_SF_MESSAGE_TEM
+&&
+	requires { Clock::to_time_t(std::declval<typename Clock::time_point>()); }&&
+	requires { !std::is_same_v<Clock, std::chrono::steady_clock>; }
+std::ostream& operator<<(std::ostream& os, const _SF_MESSAGE_A& msg);
+
+export
+_SF_MESSAGE_TEM
+&&
+std::same_as<Clock, std::chrono::steady_clock>
+std::ostream& operator<<(std::ostream& os, const _SF_MESSAGE_A& msg);
+
+export using Message = BasicMessage<>;
+_SF_MSG_END
+
 template<typename T, typename Clock>
 class std::formatter<Scriptforge::Msg::BasicMessage<T, Clock>> {
 public:
@@ -151,70 +158,61 @@ constexpr auto std::formatter<Scriptforge::Msg::BasicMessage<T, Clock>>::parse(s
 }
 
 
+_SF_MSG_BEGIN
 
+_SF_MESSAGE_TEM
+_SF_MESSAGE BasicMessage(const T& msg, InformationLevel level, TimePoint tp) : m_msg(msg), m_level(level), m_time(tp) {}
 
-namespace Scriptforge {
-	inline namespace Msg {
+_SF_MESSAGE_TEM
+_SF_MESSAGE BasicMessage(T&& msg, InformationLevel level, TimePoint tp) : m_msg(std::move(msg)), m_level(level), m_time(tp) {}
 
-		template <typename T, typename Clock>
-			requires MessageRequires<T, Clock>
-		BasicMessage<T, Clock>::BasicMessage(const T& msg, InformationLevel level, TimePoint tp) : m_msg(msg), m_level(level), m_time(tp) {}
-
-		template <typename T, typename Clock>
-			requires MessageRequires<T, Clock>
-		BasicMessage<T, Clock>::BasicMessage(T&& msg, InformationLevel level, TimePoint tp) : m_msg(std::move(msg)), m_level(level), m_time(tp) {}
-
-		template <typename T, typename Clock>
-			requires MessageRequires<T, Clock>
-		const T& BasicMessage<T, Clock>::message() const noexcept {
-			return m_msg;
-		}
-
-		template <typename T, typename Clock>
-			requires MessageRequires<T, Clock>
-		InformationLevel BasicMessage<T, Clock>::level() const noexcept {
-			return m_level;
-		}
-
-		template <typename T, typename Clock>
-			requires MessageRequires<T, Clock>
-		typename BasicMessage<T, Clock>::TimePoint BasicMessage<T, Clock>::time() const noexcept {
-			return m_time;
-		}
-
-		template <typename T, typename Clock>
-			requires MessageRequires<T, Clock> &&
-			requires { Clock::to_time_t(std::declval<typename Clock::time_point>()); } &&
-			requires { !std::is_same_v<Clock, std::chrono::steady_clock>; }
-		std::ostream& operator<<(std::ostream& os, const BasicMessage<T, Clock>& msg) {
-			auto tp = msg.time();
-			auto zt = std::chrono::zoned_time{ std::chrono::current_zone(), tp };
-			auto local = zt.get_local_time();
-			auto days = floor<std::chrono::days>(local);
-			std::chrono::year_month_day ymd{ days };
-			std::chrono::hh_mm_ss      hms{ local - days };
-
-			// 直接输出！安全！干净！
-			os << std::format("[{:04d}-{:02d}-{:02d} {:02d}:{:02d}:{:02d}] [{}] {}",
-				static_cast<int>(ymd.year()),
-				static_cast<unsigned>(ymd.month()),
-				static_cast<unsigned>(ymd.day()),
-				hms.hours().count(),
-				hms.minutes().count(),
-				hms.seconds().count(),
-				getInformationLevel(msg.level()),
-				msg.message());
-			return os;
-		}
-
-		template <typename T, typename Clock>
-			requires MessageRequires<T, Clock>&&
-		std::same_as<Clock, std::chrono::steady_clock>
-			std::ostream& operator<<(std::ostream& os, const BasicMessage<T, Clock>& msg) {
-			os << "[ " << msg.time().time_since_epoch().count()
-				<< "] [" << getInformationLevel(msg.level())
-				<< "] " << msg.message();
-			return os;
-		}
-	}
+_SF_MESSAGE_TEM
+const T& _SF_MESSAGE message() const noexcept {
+	return m_msg;
 }
+
+_SF_MESSAGE_TEM
+InformationLevel _SF_MESSAGE level() const noexcept {
+	return m_level;
+}
+
+_SF_MESSAGE_TEM
+typename _SF_MESSAGE TimePoint _SF_MESSAGE time() const noexcept {
+	return m_time;
+}
+
+_SF_MESSAGE_TEM
+&&
+	requires { Clock::to_time_t(std::declval<typename Clock::time_point>()); }&&
+	requires { !std::is_same_v<Clock, std::chrono::steady_clock>; }
+std::ostream& operator<<(std::ostream& os, const _SF_MESSAGE_A& msg) {
+	auto tp = msg.time();
+	auto zt = std::chrono::zoned_time{ std::chrono::current_zone(), tp };
+	auto local = zt.get_local_time();
+	auto days = floor<std::chrono::days>(local);
+	std::chrono::year_month_day ymd{ days };
+	std::chrono::hh_mm_ss      hms{ local - days };
+
+	// 直接输出！安全！干净！
+	os << std::format("[{:04d}-{:02d}-{:02d} {:02d}:{:02d}:{:02d}] [{}] {}",
+		static_cast<int>(ymd.year()),
+		static_cast<unsigned>(ymd.month()),
+		static_cast<unsigned>(ymd.day()),
+		hms.hours().count(),
+		hms.minutes().count(),
+		hms.seconds().count(),
+		getInformationLevel(msg.level()),
+		msg.message());
+	return os;
+}
+
+_SF_MESSAGE_TEM
+&&
+std::same_as<Clock, std::chrono::steady_clock>
+std::ostream& operator<<(std::ostream& os, const _SF_MESSAGE_A& msg) {
+	os << "[ " << msg.time().time_since_epoch().count()
+		<< "] [" << getInformationLevel(msg.level())
+		<< "] " << msg.message();
+	return os;
+}
+_SF_MSG_END

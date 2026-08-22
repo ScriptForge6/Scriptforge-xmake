@@ -17,21 +17,17 @@ target(TEST_NAME)
 
     set_pcxxheader(path.join(LIB_DIR, "Scriptforge.Pch.hpp"))
 
-    if is_plat("windows") then
-        add_ldflags("/WHOLEARCHIVE:gtest_main.lib", {tools={"link"}, force = true})
-    end
+    add_extrafiles(LANG_DIR)
 
-    --add_packages("gtest", {components = {"gtest","gtest_main"}})
-    add_packages("gtest", {components = {"gtest","gtest_main"}, wholearchive = true})
-
+    add_packages("gtest")
     add_packages("nlohmann_json")
     add_packages("utfcpp")
 
-    local local_ANTIDEB_RAND_PATH = ANTIDEB_RAND_PATH
+    local local_ANTIDEB_RAND_DIR = ANTIDEB_RAND_DIR
 
     before_build(function (target)
         import("pre", {always_build = true})
-        pre.run(local_ANTIDEB_RAND_PATH)
+        pre.run(local_ANTIDEB_RAND_DIR)
     end)
 
 

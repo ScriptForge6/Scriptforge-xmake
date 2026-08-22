@@ -25,42 +25,42 @@ module;
 #define  _SF_BUFFER_END   _SF_END }
 
 #define _SF_BUFFER _SF Buffer::
-#define _SF_BYTEBUFFER _SF_BUFFER ByteBuffer<Alloc>::
-#define _SF_BYTEBUFFER_A _SF_BUFFER ByteBuffer<Alloc>
-#define _SF_BYTEBUFFER_TEM template <typename Alloc>
+#define _SF_BYTEBUFFER_A _SF_BUFFER BasicByteBuffer<Alloc>
+#define _SF_BYTEBUFFER _SF_BUFFER BasicByteBuffer<Alloc>::
+#define _SF_BYTEBUFFER_TEM_BEGIN template <typename Alloc
+#define _SF_BYTEBUFFER_TEM_END >
+#define _SF_BYTEBUFFER_TEM _SF_BYTEBUFFER_TEM_BEGIN _SF_BYTEBUFFER_TEM_END
 
 export module Scriptforge.ByteBuffer;
-
-import Scriptforge.Local;
 
 _SF_BUFFER_BEGIN
 export
 template <typename Alloc = std::allocator<uint8_t>>
-class ByteBuffer {
+class BasicByteBuffer {
 public:
-	using value_type = uint8_t;
-	using allocator_type = Alloc;
-	using container = std::vector<uint8_t, allocator_type>;
-	using reference = value_type&;
-	using const_reference = const value_type&;
-	using pointer = value_type*;
-	using const_pointer = const value_type*;
+	using container = std::vector<uint8_t, Alloc>;
+	using value_type = container::value_type;
+	using allocator_type = container::allocator_type;
+	using reference = container::reference;
+	using const_reference = container::const_reference;
+	using pointer = container::pointer;
+	using const_pointer = container::const_pointer;
 	using difference_type = container::difference_type;
-	using size_type = size_t;
+	using size_type = container::size_type;
 	using iterator = container::iterator;
 	using const_iterator = container::const_iterator;
 	using reverse_iterator = container::reverse_iterator;
 	using const_reverse_iterator = container::const_reverse_iterator;
 
-	ByteBuffer() = default;
-	ByteBuffer(const _SF_BYTEBUFFER_A&) = default;
-	ByteBuffer(_SF_BYTEBUFFER_A&&) = default;
-	ByteBuffer(size_type n, const Scriptforge::Local::Lang& lang = Scriptforge::Local::Lang{});
-	ByteBuffer(size_type n, const value_type& value, const Scriptforge::Local::Lang& lang = Scriptforge::Local::Lang{});
+	BasicByteBuffer() = default;
+	BasicByteBuffer(const _SF_BYTEBUFFER_A&) = default;
+	BasicByteBuffer(_SF_BYTEBUFFER_A&&) = default;
+	BasicByteBuffer(size_type n);
+	BasicByteBuffer(size_type n, const value_type& value);
 	template<class InputIt>
-	ByteBuffer(InputIt first, InputIt last, const Scriptforge::Local::Lang& lang = Scriptforge::Local::Lang{});
-	explicit ByteBuffer(value_type byte, const Scriptforge::Local::Lang& lang = Scriptforge::Local::Lang{});
-	explicit ByteBuffer(std::span<const uint8_t> init, const Scriptforge::Local::Lang& lang = Scriptforge::Local::Lang{});
+	BasicByteBuffer(InputIt first, InputIt last);
+	explicit BasicByteBuffer(value_type byte);
+	explicit BasicByteBuffer(std::span<const value_type> init);
 
 	[[nodiscard]] size_type size() const noexcept;
 	[[nodiscard]] size_type max_size() const noexcept;
@@ -71,6 +71,17 @@ public:
 	[[nodiscard]] size_type capacity() const noexcept;
 	void clear();
 	void shrink_to_fit();
+
+	reference operator[](size_type pos);
+	const_reference operator[](size_type pos) const;
+
+	reference at(size_type pos);
+	const_reference at(size_type pos) const;
+
+	reference front();
+	const_reference front() const;
+	reference back();
+	const_reference back() const;
 
 	[[nodiscard]] pointer data() noexcept;
 	[[nodiscard]] const_pointer data() const noexcept;
@@ -96,13 +107,12 @@ public:
 	_SF_BYTEBUFFER_A& push_back_le(T value);
 	template<std::unsigned_integral T>
 	_SF_BYTEBUFFER_A& push_back_be(T value);
+	void pop_back();
 
 	template<class... Args>
 	iterator emplace(iterator pos, Args&&... args);
 	template<class... Args>
 	reference emplace_back(Args&&... args);
-
-	void pop_back();
 	
 	iterator insert(const_iterator pos, const value_type& value);
 	iterator insert(const_iterator pos, value_type&& value);
@@ -110,47 +120,66 @@ public:
 	template <class InputIt>
 	iterator insert(const_iterator pos, InputIt first, InputIt last);
 	iterator insert(const_iterator pos, std::initializer_list<value_type> ilist);
-	iterator insert(const_iterator pos, std::span<const uint8_t> list);
+	iterator insert(const_iterator pos, std::span<const value_type> list);
+
+	iterator erase(iterator pos);
+	iterator erase(iterator first, iterator last);
+
+	_SF_BYTEBUFFER_A& operator=(const _SF_BYTEBUFFER_A& other);
+	_SF_BYTEBUFFER_A& operator=(_SF_BYTEBUFFER_A&& other) noexcept;
+	_SF_BYTEBUFFER_A& operator=(std::initializer_list<value_type> ilist);
 
 	void assign(size_type n, const value_type& val);
 	template<class InputIt>
 	void assign(InputIt first, InputIt last);
 	void assign(std::initializer_list<value_type> ilist);
+
+	void swap(_SF_BYTEBUFFER_A& other) noexcept;
+
+	friend auto operator<=>(const _SF_BYTEBUFFER_A& lhs, const _SF_BYTEBUFFER_A& rhs);
 private:
-	Scriptforge::Local::Lang m_lang;
 	container m_buf;
 };
+
+export
+_SF_BYTEBUFFER_TEM
+auto operator<=>(const _SF_BYTEBUFFER_A& lhs, const _SF_BYTEBUFFER_A& rhs);
+
+export
+_SF_BYTEBUFFER_TEM_BEGIN, class U _SF_BYTEBUFFER_TEM_END
+constexpr auto erase(_SF_BYTEBUFFER_A& c, const U& value);
+
+export
+_SF_BYTEBUFFER_TEM_BEGIN, class Pred _SF_BYTEBUFFER_TEM_END
+constexpr auto erase_if(_SF_BYTEBUFFER_A& c, Pred pred);
+
+export using ByteBuffer = BasicByteBuffer<>;
+
 _SF_BUFFER_END
 
 
 _SF_BUFFER_BEGIN
 
 _SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER ByteBuffer(size_type n, const Scriptforge::Local::Lang& lang)
-	: m_lang(lang) {
-	m_buf.resize(n);
-}
+_SF_BYTEBUFFER BasicByteBuffer(size_type n)
+	: m_buf(n) {}
 
 _SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER ByteBuffer(size_type n, const value_type& value, const Scriptforge::Local::Lang& lang)
-	: m_lang(lang) {
-	m_buf.resize(n, value);
-}
+_SF_BYTEBUFFER BasicByteBuffer(size_type n, const value_type& value)
+	: m_buf(n, value) {}
 
 _SF_BYTEBUFFER_TEM
 template<class InputIt>
-_SF_BYTEBUFFER ByteBuffer(InputIt first, InputIt last, const Scriptforge::Local::Lang& lang)
-	: m_lang(lang), m_buf(first, last) {}
+_SF_BYTEBUFFER BasicByteBuffer(InputIt first, InputIt last)
+	: m_buf(first, last) {}
 
 _SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER ByteBuffer(value_type byte, const Scriptforge::Local::Lang& lang)
-	: m_lang(lang) {
-	m_buf.push_back(byte);
-}
+_SF_BYTEBUFFER BasicByteBuffer(value_type byte)
+	: m_buf(1, byte) {}
 
 _SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER ByteBuffer(std::span<const uint8_t> init, const Scriptforge::Local::Lang& lang)
-	: m_lang(lang), m_buf(init.begin(), init.end()) {}
+_SF_BYTEBUFFER BasicByteBuffer(std::span<const value_type> init)
+	: m_buf(init.begin(), init.end()) {}
 
 
 _SF_BYTEBUFFER_TEM
@@ -196,6 +225,49 @@ void _SF_BYTEBUFFER clear() {
 _SF_BYTEBUFFER_TEM
 void _SF_BYTEBUFFER shrink_to_fit() {
 	m_buf.shrink_to_fit();
+}
+
+
+_SF_BYTEBUFFER_TEM
+_SF_BYTEBUFFER reference _SF_BYTEBUFFER operator[](size_type pos) {
+	return m_buf[pos];
+}
+
+_SF_BYTEBUFFER_TEM
+_SF_BYTEBUFFER const_reference _SF_BYTEBUFFER operator[](size_type pos) const {
+	return m_buf[pos];
+}
+
+
+_SF_BYTEBUFFER_TEM
+_SF_BYTEBUFFER reference _SF_BYTEBUFFER at(size_type pos) {
+	return m_buf.at(pos);
+}
+
+_SF_BYTEBUFFER_TEM
+_SF_BYTEBUFFER const_reference _SF_BYTEBUFFER at(size_type pos) const {
+	return m_buf.at(pos);
+}
+
+
+_SF_BYTEBUFFER_TEM
+_SF_BYTEBUFFER reference _SF_BYTEBUFFER front() {
+	return m_buf.front();
+}
+
+_SF_BYTEBUFFER_TEM
+_SF_BYTEBUFFER const_reference _SF_BYTEBUFFER front() const {
+	return m_buf.front();
+}
+
+_SF_BYTEBUFFER_TEM
+_SF_BYTEBUFFER reference _SF_BYTEBUFFER back() {
+	return m_buf.back();
+}
+
+_SF_BYTEBUFFER_TEM
+_SF_BYTEBUFFER const_reference _SF_BYTEBUFFER back() const {
+	return m_buf.back();
 }
 
 
@@ -300,6 +372,10 @@ auto _SF_BYTEBUFFER push_back_be(T value) -> _SF_BYTEBUFFER_A& {
 	return push_back<T, false>(value);
 }
 
+_SF_BYTEBUFFER_TEM
+void _SF_BYTEBUFFER pop_back() {
+	m_buf.pop_back();
+}
 
 _SF_BYTEBUFFER_TEM
 template<class... Args>
@@ -311,11 +387,6 @@ _SF_BYTEBUFFER_TEM
 template<class... Args>
 _SF_BYTEBUFFER reference _SF_BYTEBUFFER emplace_back(Args&&... args) {
 	return m_buf.emplace_back(std::forward<Args>(args)...);
-}
-
-_SF_BYTEBUFFER_TEM
-void _SF_BYTEBUFFER pop_back() {
-	m_buf.pop_back();
 }
 
 
@@ -341,8 +412,19 @@ _SF_BYTEBUFFER iterator _SF_BYTEBUFFER insert(const_iterator pos, std::initializ
 	return m_buf.insert(pos, ilist);
 }
 _SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER iterator _SF_BYTEBUFFER insert(const_iterator pos, std::span<const uint8_t> list) {
+_SF_BYTEBUFFER iterator _SF_BYTEBUFFER insert(const_iterator pos, std::span<const value_type> list) {
 	return m_buf.insert(pos, list.begin(), list.end());
+}
+
+
+_SF_BYTEBUFFER_TEM
+_SF_BYTEBUFFER iterator _SF_BYTEBUFFER erase(iterator pos) {
+	return m_buf.erase(pos);
+}
+
+_SF_BYTEBUFFER_TEM
+_SF_BYTEBUFFER iterator _SF_BYTEBUFFER erase(iterator first, iterator last) {
+	return m_buf.erase(first, last);
 }
 
 
@@ -361,4 +443,44 @@ void _SF_BYTEBUFFER assign(std::initializer_list<value_type> ilist) {
 }
 
 
+_SF_BYTEBUFFER_TEM
+void _SF_BYTEBUFFER swap(_SF_BYTEBUFFER_A& other) noexcept {
+	m_buf.swap(other.m_buf);
+}
+
+
+_SF_BYTEBUFFER_TEM
+_SF_BYTEBUFFER_A& _SF_BYTEBUFFER operator=(const _SF_BYTEBUFFER_A& other) {
+	m_buf = other.m_buf;
+	return *this;
+}
+
+_SF_BYTEBUFFER_TEM
+_SF_BYTEBUFFER_A& _SF_BYTEBUFFER operator=(_SF_BYTEBUFFER_A&& other) noexcept {
+	m_buf = std::move(other.m_buf);
+	return *this;
+}
+
+_SF_BYTEBUFFER_TEM
+_SF_BYTEBUFFER_A& _SF_BYTEBUFFER operator=(std::initializer_list<value_type> ilist) {
+	m_buf = ilist;
+	return *this;
+}
+
+
+_SF_BYTEBUFFER_TEM
+auto operator<=>(const _SF_BYTEBUFFER_A& lhs, const _SF_BYTEBUFFER_A& rhs) {
+	return lhs.m_buf <=> rhs.m_buf;
+}
+
+
+_SF_BYTEBUFFER_TEM_BEGIN, class U _SF_BYTEBUFFER_TEM_END
+constexpr auto erase(_SF_BYTEBUFFER_A& c, const U& value) {
+	return std::erase(c.m_buf, value);
+}
+
+_SF_BYTEBUFFER_TEM_BEGIN, class Pred _SF_BYTEBUFFER_TEM_END
+constexpr auto erase_if(_SF_BYTEBUFFER_A& c, Pred pred) {
+	return std::erase_if(c.m_buf, pred);
+}
 _SF_BUFFER_END

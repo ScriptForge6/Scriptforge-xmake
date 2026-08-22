@@ -553,6 +553,8 @@ Scriptforge-xmake
 │   ├── Scriptforge.AntiDebug.cpp
 │   ├── Scriptforge.AntiDebug.ixx
 │   ├── Scriptforge.Argv.ixx
+│   ├── Scriptforge.Base64.ixx
+│   ├── Scriptforge.ByteBuffer.ixx
 │   ├── Scriptforge.Err.ixx
 │   ├── Scriptforge.ErrCode.ixx
 │   ├── Scriptforge.ErrCode.throwError.ixx
@@ -561,7 +563,6 @@ Scriptforge-xmake
 │   ├── Scriptforge.Log.ixx
 │   ├── Scriptforge.Msg.ixx
 │   ├── Scriptforge.Pch.hpp
-│   ├── Scriptforge.ProcessPool.ixx
 │   ├── Scriptforge.RingBuffer.ixx
 │   ├── Scriptforge.StringConversion.ixx
 │   ├── Scriptforge.ThreadError.ixx

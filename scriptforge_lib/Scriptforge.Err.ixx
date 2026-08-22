@@ -17,109 +17,115 @@
 */
 module;
 
+#include "Scriptforge.Define.hpp"
 #include "Scriptforge.Pch.hpp"
 
+#define _SF_ERR_BEGIN _SF_BEGIN inline namespace Err {
+#define _SF_ERR_END   _SF_END }
+
+#define _SF_ERR _SF Err::
+#define _SF_ERROR_A _SF_ERR BasicError<CodeT, T, Clock>
+#define _SF_ERROR _SF_ERR BasicError<CodeT, T, Clock>::
+#define _SF_ERROR_TEM_A template <typename CodeT, typename T, typename Clock>
+#define _SF_ERROR_TEM _SF_ERROR_TEM_A \
+                          requires ErrorRequires<CodeT, T, Clock>
+
 export module Scriptforge.Err;
+
 import Scriptforge.Msg;
 
-namespace Scriptforge {
-    inline namespace Err {
-        template <typename CodeT, typename T, typename Clock>
-        concept ErrorRequires = Scriptforge::Msg::MessageRequires<T, Clock>&&
-            std::copyable<CodeT>;
+_SF_ERR_BEGIN
 
-        export 
-			template<typename CodeT = std::string, typename T = std::string, typename Clock = std::chrono::system_clock>
-			requires ErrorRequires<CodeT, T, Clock>
-        class BasicError : public Scriptforge::Msg::BasicMessage<T, Clock> {
-        public:
-            BasicError(const CodeT& code = CodeT{}, const T& msg = T{}, Scriptforge::Msg::InformationLevel level = Scriptforge::Msg::InformationLevel::Error, typename Clock::time_point tp = Clock::now());
-			BasicError(CodeT&& code, T&& msg, Scriptforge::Msg::InformationLevel level = Scriptforge::Msg::InformationLevel::Error, typename Clock::time_point tp = Clock::now());
+_SF_ERROR_TEM_A
+concept ErrorRequires = Scriptforge::Msg::MessageRequires<T, Clock>&&
+std::copyable<CodeT>;
 
-			const T& what() const noexcept;
-            const CodeT& code() const;
+export
+template<typename CodeT = std::string, typename T = std::string, typename Clock = std::chrono::system_clock>
+	requires ErrorRequires<CodeT, T, Clock>
+class BasicError : public Scriptforge::Msg::BasicMessage<T, Clock> {
+public:
+	BasicError(const CodeT& code = CodeT{}, const T& msg = T{}, const Scriptforge::Msg::InformationLevel level = Scriptforge::Msg::InformationLevel::Error, typename Clock::time_point tp = Clock::now());
+	BasicError(CodeT&& code, T&& msg, const Scriptforge::Msg::InformationLevel level = Scriptforge::Msg::InformationLevel::Error, typename Clock::time_point tp = Clock::now());
 
-        private:
-            CodeT m_code;
-        };
+	const T& what() const noexcept;
+	const CodeT& code() const;
 
-        export using Error = BasicError<>;
+private:
+	CodeT m_code;
+};
 
-		export
-			template <typename CodeT, typename T, typename Clock>
-			requires ErrorRequires<CodeT, T, Clock>&&
-			requires { Clock::to_time_t(std::declval<typename Clock::time_point>()); }&&
-			requires { !std::is_same_v<Clock, std::chrono::steady_clock>; }
-		std::ostream& operator<<(std::ostream& os, const BasicError<CodeT, T, Clock>& error);
+export using Error = BasicError<>;
 
-		export
-			template <typename T, typename Clock>
-			requires MessageRequires<T, Clock>&&
-		std::same_as<Clock, std::chrono::steady_clock>
-			std::ostream& operator<<(std::ostream& os, const BasicMessage<T, Clock>& msg);
-    }
+export
+_SF_ERROR_TEM
+	&&
+	requires { Clock::to_time_t(std::declval<typename Clock::time_point>()); }&&
+	requires { !std::is_same_v<Clock, std::chrono::steady_clock>; }
+std::ostream& operator<<(std::ostream& os, const BasicError<CodeT, T, Clock>& error);
+
+export
+_SF_ERROR_TEM
+	&&
+	std::same_as<Clock, std::chrono::steady_clock>
+std::ostream& operator<<(std::ostream& os, const BasicMessage<T, Clock>& msg);
+_SF_ERR_END
+
+_SF_ERR_BEGIN
+
+_SF_ERROR_TEM
+_SF_ERROR BasicError(const CodeT& code, const T& msg, const Scriptforge::Msg::InformationLevel level, typename Clock::time_point tp)
+	: Scriptforge::Msg::BasicMessage<T, Clock>(msg, level, tp), m_code(code) {}
+
+_SF_ERROR_TEM
+_SF_ERROR BasicError(CodeT&& code, T&& msg, const Scriptforge::Msg::InformationLevel level, typename Clock::time_point tp)
+	: Scriptforge::Msg::BasicMessage<T, Clock>(std::move(msg), level, tp), m_code(std::move(code)) {}
+
+_SF_ERROR_TEM
+const T& _SF_ERROR what() const noexcept {
+	return this->message();
 }
 
-namespace Scriptforge {
-    inline namespace Err {
-		template<typename CodeT, typename T, typename Clock>
-			requires ErrorRequires<CodeT, T, Clock>
-        BasicError<CodeT, T, Clock>::BasicError(const CodeT& code, const T& msg, Scriptforge::Msg::InformationLevel level, typename Clock::time_point tp)
-            : Scriptforge::Msg::BasicMessage<T, Clock>(msg, level, tp), m_code(code) {}
-
-        template<typename CodeT, typename T, typename Clock>
-            requires ErrorRequires<CodeT, T, Clock>
-		BasicError<CodeT, T, Clock>::BasicError(CodeT&& code, T&& msg, Scriptforge::Msg::InformationLevel level, typename Clock::time_point tp)
-            : Scriptforge::Msg::BasicMessage<T, Clock>(std::move(msg), level, tp), m_code(std::move(code)) {}
-
-        template<typename CodeT, typename T, typename Clock>
-            requires ErrorRequires<CodeT, T, Clock>
-        const T& BasicError<CodeT, T, Clock>::what() const noexcept {
-            return this->message();
-		}
-
-        template<typename CodeT, typename T, typename Clock>
-			requires ErrorRequires<CodeT, T, Clock>
-        const CodeT& BasicError<CodeT, T, Clock>::code() const {
-            return m_code;
-		}
-
-		template <typename CodeT, typename T, typename Clock>
-			requires ErrorRequires<CodeT, T, Clock>&&
-			requires { Clock::to_time_t(std::declval<typename Clock::time_point>()); }&&
-			requires { !std::is_same_v<Clock, std::chrono::steady_clock>; }
-		std::ostream& operator<<(std::ostream& os, const BasicError<CodeT, T, Clock>& error) {
-			// 拆分输出，不再把时区相关变量全部丢进std::format
-			auto tp = error.time();
-			auto zt = std::chrono::zoned_time{ std::chrono::current_zone(), tp };
-			auto local = zt.get_local_time();
-			auto days = floor<std::chrono::days>(local);
-			std::chrono::year_month_day ymd{ days };
-			std::chrono::hh_mm_ss      hms{ local - days };
-
-			// 直接输出！安全！干净！
-			os << std::format("[{:04d}-{:02d}-{:02d} {:02d}:{:02d}:{:02d}] [{}] [{}] {}",
-				static_cast<int>(ymd.year()),
-				static_cast<unsigned>(ymd.month()),
-				static_cast<unsigned>(ymd.day()),
-				hms.hours().count(),
-				hms.minutes().count(),
-				hms.seconds().count(),
-				getInformationLevel(error.level()),
-				error.code(),
-				error.message());
-			return os;
-		}
-
-		template <typename T, typename Clock>
-			requires MessageRequires<T, Clock>&&
-		std::same_as<Clock, std::chrono::steady_clock>
-			std::ostream& operator<<(std::ostream& os, const BasicMessage<T, Clock>& msg) {
-			os << "[ " << msg.time().time_since_epoch().count()
-				<< "] [" << getInformationLevel(msg.level())
-				<< "] [" << msg.code()
-				<< "] " << msg.message();
-			return os;
-		}
-    }
+_SF_ERROR_TEM
+const CodeT& _SF_ERROR code() const {
+	return m_code;
 }
+
+_SF_ERROR_TEM
+	&&
+	requires { Clock::to_time_t(std::declval<typename Clock::time_point>()); }&&
+	requires { !std::is_same_v<Clock, std::chrono::steady_clock>; }
+std::ostream& operator<<(std::ostream& os, const BasicError<CodeT, T, Clock>& error) {
+	// 拆分输出，不再把时区相关变量全部丢进std::format
+	auto tp = error.time();
+	auto zt = std::chrono::zoned_time{ std::chrono::current_zone(), tp };
+	auto local = zt.get_local_time();
+	auto days = floor<std::chrono::days>(local);
+	std::chrono::year_month_day ymd{ days };
+	std::chrono::hh_mm_ss      hms{ local - days };
+
+	// 直接输出！安全！干净！
+	os << std::format("[{:04d}-{:02d}-{:02d} {:02d}:{:02d}:{:02d}] [{}] [{}] {}",
+		static_cast<int>(ymd.year()),
+		static_cast<unsigned>(ymd.month()),
+		static_cast<unsigned>(ymd.day()),
+		hms.hours().count(),
+		hms.minutes().count(),
+		hms.seconds().count(),
+		getInformationLevel(error.level()),
+		error.code(),
+		error.message());
+	return os;
+}
+
+_SF_ERROR_TEM
+	&&
+	std::same_as<Clock, std::chrono::steady_clock>
+std::ostream& operator<<(std::ostream& os, const BasicMessage<T, Clock>& msg) {
+	os << "[ " << msg.time().time_since_epoch().count()
+		<< "] [" << getInformationLevel(msg.level())
+		<< "] [" << msg.code()
+		<< "] " << msg.message();
+	return os;
+}
+_SF_ERR_END
