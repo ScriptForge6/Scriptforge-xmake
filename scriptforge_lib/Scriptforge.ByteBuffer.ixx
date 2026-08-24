@@ -24,6 +24,9 @@ module;
 #define _SF_BUFFER_BEGIN _SF_BEGIN inline namespace Buffer {
 #define  _SF_BUFFER_END   _SF_END }
 
+#define _SF_BUFFER_LITERALS_BEGIN inline namespace BufferLiterals {
+#define _SF_BUFFER_LITERALS_END }
+
 #define _SF_BUFFER _SF Buffer::
 #define _SF_BYTEBUFFER_A _SF_BUFFER BasicByteBuffer<Alloc>
 #define _SF_BYTEBUFFER _SF_BUFFER BasicByteBuffer<Alloc>::
@@ -34,6 +37,71 @@ module;
 export module Scriptforge.ByteBuffer;
 
 _SF_BUFFER_BEGIN
+
+export namespace Hex {
+	struct HexUppercaseSeparate {
+		inline static constexpr std::array<char, 16> set = []() constexpr {
+			std::array<char, 16> m;
+			for (size_t i = 0; i <= 9; i++) {
+				m[i] = '0' + i;
+			}
+			for (size_t i = 10; i <= 15; i++) {
+				m[i] = 'A' + i - 10;
+			}
+			return m;
+			}();
+		inline static constexpr std::optional<char> separate = ' ';
+	};
+
+	struct HexUppercase {
+		inline static constexpr std::array<char, 16> set = []() constexpr {
+			std::array<char, 16> m;
+			for (size_t i = 0; i <= 9; i++) {
+				m[i] = '0' + i;
+			}
+			for (size_t i = 10; i <= 15; i++) {
+				m[i] = 'A' + i - 10;
+			}
+			return m;
+			}();
+		inline static constexpr std::optional<char> separate = std::nullopt;
+	};
+
+	struct HexSeparate {
+		inline static constexpr std::array<char, 16> set = []() constexpr {
+			std::array<char, 16> m;
+			for (size_t i = 0; i <= 9; i++) {
+				m[i] = '0' + i;
+			}
+			for (size_t i = 10; i <= 15; i++) {
+				m[i] = 'a' + i - 10;
+			}
+			return m;
+			}();
+		inline static constexpr std::optional<char> separate = ' ';
+	};
+
+	struct isHex {
+		inline static constexpr std::array<char, 16> set = []() constexpr {
+			std::array<char, 16> m;
+			for (size_t i = 0; i <= 9; i++) {
+				m[i] = '0' + i;
+			}
+			for (size_t i = 10; i <= 15; i++) {
+				m[i] = 'a' + i - 10;
+			}
+			return m;
+			}();
+		inline static constexpr std::optional<char> separate = std::nullopt;
+	};
+}
+
+template<typename T>
+concept isHex = requires {
+	{ T::set } -> std::convertible_to<typename std::array<char, 16>>;
+	{ T::separate } -> std::convertible_to<std::optional<char>>;
+};
+
 export
 template <typename Alloc = std::allocator<uint8_t>>
 class BasicByteBuffer {
@@ -113,7 +181,7 @@ public:
 	iterator emplace(iterator pos, Args&&... args);
 	template<class... Args>
 	reference emplace_back(Args&&... args);
-	
+
 	iterator insert(const_iterator pos, const value_type& value);
 	iterator insert(const_iterator pos, value_type&& value);
 	iterator insert(const_iterator pos, size_type count, const value_type& value);
@@ -136,7 +204,13 @@ public:
 
 	void swap(_SF_BYTEBUFFER_A& other) noexcept;
 
+	const container& underlying() const;
+	std::string to_string() const;
+	template<isHex HexTag>
+	std::string to_hex() const;
+
 	friend auto operator<=>(const _SF_BYTEBUFFER_A& lhs, const _SF_BYTEBUFFER_A& rhs);
+
 private:
 	container m_buf;
 };
@@ -154,6 +228,12 @@ _SF_BYTEBUFFER_TEM_BEGIN, class Pred _SF_BYTEBUFFER_TEM_END
 constexpr auto erase_if(_SF_BYTEBUFFER_A& c, Pred pred);
 
 export using ByteBuffer = BasicByteBuffer<>;
+
+_SF_BUFFER_LITERALS_BEGIN
+
+export ByteBuffer operator""_sf_bb(const char* c, std::size_t n);
+
+_SF_BUFFER_LITERALS_END
 
 _SF_BUFFER_END
 
@@ -450,6 +530,56 @@ void _SF_BYTEBUFFER swap(_SF_BYTEBUFFER_A& other) noexcept {
 
 
 _SF_BYTEBUFFER_TEM
+const _SF_BYTEBUFFER container& _SF_BYTEBUFFER underlying() const {
+	return m_buf;
+}
+
+_SF_BYTEBUFFER_TEM
+std::string _SF_BYTEBUFFER to_string() const {
+	return std::string{
+		reinterpret_cast<const char*>(m_buf.data()),
+		m_buf.size()
+	};
+}
+
+_SF_BYTEBUFFER_TEM
+template<isHex HexTag>
+std::string _SF_BYTEBUFFER to_hex() const {
+	constexpr const auto& tbl = HexTag::set;
+	constexpr auto sep = HexTag::separate;
+
+	const size_t count = m_buf.size();
+	if (count == 0)
+		return {};
+
+	size_t out_size = count * 2;
+	if constexpr (sep.has_value())
+	{
+		out_size += count - 1;
+	}
+
+	std::string out;
+	out.reserve(out_size);
+
+	for (size_t i = 0; i < count; ++i)
+	{
+		const uint8_t b = static_cast<uint8_t>(m_buf[i]);
+		out += tbl[(b >> 4) & 0x0F];
+		out += tbl[b & 0x0F];
+
+		if constexpr (sep.has_value())
+		{
+			if (i != count - 1)
+			{
+				out += sep.value();
+			}
+		}
+	}
+	return out;
+}
+
+
+_SF_BYTEBUFFER_TEM
 _SF_BYTEBUFFER_A& _SF_BYTEBUFFER operator=(const _SF_BYTEBUFFER_A& other) {
 	m_buf = other.m_buf;
 	return *this;
@@ -483,4 +613,12 @@ _SF_BYTEBUFFER_TEM_BEGIN, class Pred _SF_BYTEBUFFER_TEM_END
 constexpr auto erase_if(_SF_BYTEBUFFER_A& c, Pred pred) {
 	return std::erase_if(c.m_buf, pred);
 }
+
+_SF_BUFFER_LITERALS_BEGIN
+ByteBuffer operator""_sf_bb(const char* c, std::size_t n) {
+	auto sp = std::span(reinterpret_cast<const uint8_t*>(c), n);
+	return ByteBuffer(sp);
+}
+_SF_BUFFER_LITERALS_END
+
 _SF_BUFFER_END

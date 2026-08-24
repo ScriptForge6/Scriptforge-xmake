@@ -144,7 +144,8 @@ std::string _SF_BASE64 encode() const {
         return std::get<std::string>(m_base);
     }
 
-    size_t len = std::get<container>(m_base).size();
+    const auto& buf = std::get<container>(m_base);
+    size_t len = buf.size();
     uint8_t mod = len % 3;
 
     std::string temp_out; // 先用临时串，不污染m_base直到全部成功
@@ -153,9 +154,9 @@ std::string _SF_BASE64 encode() const {
     size_t full_block_count = (len - mod) / 3;
     for (size_t i = 0; i < full_block_count; ++i) {
         size_t offset = i * 3;
-        uint32_t s = (static_cast<uint32_t>(std::get<container>(m_base)[offset]) << 16)
-            | (static_cast<uint32_t>(std::get<container>(m_base)[offset + 1]) << 8)
-            | static_cast<uint32_t>(std::get<container>(m_base)[offset + 2]);
+        uint32_t s = (static_cast<uint32_t>(buf[offset]) << 16)
+            | (static_cast<uint32_t>(buf[offset + 1]) << 8)
+            | static_cast<uint32_t>(buf[offset + 2]);
 
         uint8_t a[4];
         a[0] = (s >> 18) & 0x3F;
