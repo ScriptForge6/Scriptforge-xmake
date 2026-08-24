@@ -11,7 +11,7 @@
 
 /**
  * @file Scriptforge.Base64.ixx
- * @brief 实现了Base64和Base64url的编解码
+ * @brief 实现了 Base64 和 Base64url 的编解码
  * @author Scriptforge
  * @date 2026/8/21
 */
@@ -19,13 +19,6 @@ module;
 
 #include "Scriptforge.Define.hpp"
 #include "Scriptforge.Pch.hpp"
-
-#define _SF_BASE_BEGIN _SF_BEGIN inline namespace Base {
-#define _SF_BASE_END   _SF_END }
-
-#define _SF_BASE _SF Base::
-#define _SF_BASE64 _SF_BASE BasicBase64<CharSet>::
-#define  _SF_BASE64_TEM template<isBaseCharSet CharSet>
 
 export module Scriptforge.Base64;
 

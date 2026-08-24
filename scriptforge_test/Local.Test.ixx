@@ -1,6 +1,7 @@
 module;
-#include <gtest/gtest.h>
 #include "Scriptforge.Pch.hpp"
+
+#include <gtest/gtest.h>
 
 export module Local.Test;
 
@@ -10,8 +11,7 @@ import Scriptforge.Local;
 import Scriptforge.ErrCode;
 
 namespace fs = std::filesystem;
-using namespace Scriptforge::LanguageCode;
-using namespace Scriptforge::Local;
+using namespace Scriptforge::Code;
 
 namespace Scriptforge::Local::Test {
 

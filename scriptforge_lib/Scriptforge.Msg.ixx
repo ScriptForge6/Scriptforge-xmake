@@ -21,16 +21,6 @@ module;
 #include "Scriptforge.Define.hpp"
 #include "Scriptforge.Pch.hpp"
 
-#define _SF_MSG_BEGIN _SF_BEGIN inline namespace Msg {
-#define _SF_MSG_END   _SF_END }
-
-#define _SF_MSG _SF Msg::
-#define _SF_MESSAGE_A _SF_MSG BasicMessage<T, Clock>
-#define _SF_MESSAGE _SF_MSG BasicMessage<T, Clock>::
-#define _SF_MESSAGE_TEM_A template <typename T, typename Clock>
-#define _SF_MESSAGE_TEM _SF_MESSAGE_TEM_A \
-                          requires MessageRequires<T, Clock>
-
 export module Scriptforge.Msg;
 
 _SF_MSG_BEGIN

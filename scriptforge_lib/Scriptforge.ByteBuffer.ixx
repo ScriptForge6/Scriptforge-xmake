@@ -21,20 +21,9 @@ module;
 #include "Scriptforge.Define.hpp"
 #include "Scriptforge.Pch.hpp"
 
-#define _SF_BUFFER_BEGIN _SF_BEGIN inline namespace Buffer {
-#define  _SF_BUFFER_END   _SF_END }
-
-#define _SF_BUFFER_LITERALS_BEGIN inline namespace BufferLiterals {
-#define _SF_BUFFER_LITERALS_END }
-
-#define _SF_BUFFER _SF Buffer::
-#define _SF_BYTEBUFFER_A _SF_BUFFER BasicByteBuffer<Alloc>
-#define _SF_BYTEBUFFER _SF_BUFFER BasicByteBuffer<Alloc>::
-#define _SF_BYTEBUFFER_TEM_BEGIN template <typename Alloc
-#define _SF_BYTEBUFFER_TEM_END >
-#define _SF_BYTEBUFFER_TEM _SF_BYTEBUFFER_TEM_BEGIN _SF_BYTEBUFFER_TEM_END
-
 export module Scriptforge.ByteBuffer;
+
+import Scriptforge.StringConversion;
 
 _SF_BUFFER_BEGIN
 
@@ -81,7 +70,7 @@ export namespace Hex {
 		inline static constexpr std::optional<char> separate = ' ';
 	};
 
-	struct isHex {
+	struct Hex {
 		inline static constexpr std::array<char, 16> set = []() constexpr {
 			std::array<char, 16> m;
 			for (size_t i = 0; i <= 9; i++) {
@@ -96,9 +85,44 @@ export namespace Hex {
 	};
 }
 
+
+/**
+ * @details 一个用于检查类型是否为有效的16进制字符表的概念。
+ * 可以编写以下类型的结构体/类：
+ * ```cpp
+ * struct HexSet {
+ *     inline static constexpr std::array<char, 16> set;
+ *     inline static constexpr std::optional<char> separate;
+ * };
+ * ```
+ */
 template<typename T>
 concept isHex = requires {
 	{ T::set } -> std::convertible_to<typename std::array<char, 16>>;
+	{ T::separate } -> std::convertible_to<std::optional<char>>;
+};
+
+
+export namespace Bin {
+	struct Bin {
+		inline static constexpr char bin = '.';
+		inline static constexpr std::optional<char> separate = ' ';
+	};
+}
+
+/**
+ * @details 一个用于检查类型是否为有效的二进制字符表的概念。
+ * 可以编写以下类型的结构体/类：
+ * ```cpp
+ * struct BinSet {
+ *     inline static constexpr char bin;
+ *     inline static constexpr std::optional<char> separate;
+ * };
+ * ```
+ */
+template<typename T>
+concept isBin = requires {
+	{ T::bin } -> std::convertible_to<char>;
 	{ T::separate } -> std::convertible_to<std::optional<char>>;
 };
 
@@ -171,6 +195,8 @@ public:
 	_SF_BYTEBUFFER_A& push_back(T value);
 	template<std::unsigned_integral T>
 	_SF_BYTEBUFFER_A& push_back(T value, bool le);
+	template<_SF_STRINGCONVERSION is_basic_string T>
+	_SF_BYTEBUFFER_A& push_back(T value);
 	template<std::unsigned_integral T>
 	_SF_BYTEBUFFER_A& push_back_le(T value);
 	template<std::unsigned_integral T>
@@ -208,6 +234,11 @@ public:
 	std::string to_string() const;
 	template<isHex HexTag>
 	std::string to_hex() const;
+	std::string to_hex(const bool uppercase = false, const bool separate = true) const;
+	template<isBin BinTag>
+	std::string to_bin() const;   
+
+	operator container() const;
 
 	friend auto operator<=>(const _SF_BYTEBUFFER_A& lhs, const _SF_BYTEBUFFER_A& rhs);
 
@@ -553,30 +584,51 @@ std::string _SF_BYTEBUFFER to_hex() const {
 		return {};
 
 	size_t out_size = count * 2;
-	if constexpr (sep.has_value())
-	{
+	if constexpr (sep.has_value()) {
 		out_size += count - 1;
 	}
 
 	std::string out;
 	out.reserve(out_size);
 
-	for (size_t i = 0; i < count; ++i)
-	{
+	for (size_t i = 0; i < count; ++i) {
 		const uint8_t b = static_cast<uint8_t>(m_buf[i]);
 		out += tbl[(b >> 4) & 0x0F];
 		out += tbl[b & 0x0F];
 
-		if constexpr (sep.has_value())
-		{
-			if (i != count - 1)
-			{
+		if constexpr (sep.has_value()) {
+			if (i != count - 1) {
 				out += sep.value();
 			}
 		}
 	}
 	return out;
 }
+
+_SF_BYTEBUFFER_TEM
+std::string _SF_BYTEBUFFER to_hex(const bool uppercase, const bool separate) const {
+	if (uppercase && separate)
+		return to_hex<Hex::HexUppercaseSeparate>();
+	else if (uppercase)
+		return to_hex<Hex::HexUppercase>();
+	else if (separate)
+		return to_hex<Hex::HexSeparate>();
+	else
+		return to_hex<Hex::Hex>();
+}
+
+_SF_BYTEBUFFER_TEM
+template<isBin BinTag>
+std::string _SF_BYTEBUFFER to_bin() const {
+
+}
+
+
+_SF_BYTEBUFFER_TEM
+_SF_BYTEBUFFER operator container() const {
+	return underlying();
+}
+
 
 
 _SF_BYTEBUFFER_TEM

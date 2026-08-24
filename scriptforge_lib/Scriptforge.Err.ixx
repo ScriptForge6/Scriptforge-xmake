@@ -20,16 +20,6 @@ module;
 #include "Scriptforge.Define.hpp"
 #include "Scriptforge.Pch.hpp"
 
-#define _SF_ERR_BEGIN _SF_BEGIN inline namespace Err {
-#define _SF_ERR_END   _SF_END }
-
-#define _SF_ERR _SF Err::
-#define _SF_ERROR_A _SF_ERR BasicError<CodeT, T, Clock>
-#define _SF_ERROR _SF_ERR BasicError<CodeT, T, Clock>::
-#define _SF_ERROR_TEM_A template <typename CodeT, typename T, typename Clock>
-#define _SF_ERROR_TEM _SF_ERROR_TEM_A \
-                          requires ErrorRequires<CodeT, T, Clock>
-
 export module Scriptforge.Err;
 
 import Scriptforge.Msg;

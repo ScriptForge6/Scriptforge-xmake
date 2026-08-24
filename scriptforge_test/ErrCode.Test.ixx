@@ -18,8 +18,9 @@
 
 module;
 
-#include<gtest/gtest.h>
 #include "Scriptforge.Pch.hpp"
+
+#include<gtest/gtest.h>
 
 export module ErrCode.Test;
 
@@ -29,10 +30,9 @@ import Scriptforge.Msg;
 import Scriptforge.Err;
 import Scriptforge.ErrCode;
 import Scriptforge.ErrCode.throwError;
-using namespace Scriptforge::ErrCode;
 
 
-namespace Scriptforge::ErrCode::Test {
+namespace Scriptforge::Code::Test {
     TEST(ErrCodeTest, ToStringValidCodes) {
 
         // 测试 Tree 错误代码
@@ -65,7 +65,6 @@ namespace Scriptforge::ErrCode::Test {
     }
 
     TEST(ErrCodeTest, EnumValuesCorrect) {
-        using namespace Scriptforge::ErrCode;
 
         // 验证枚举值是否正确
         EXPECT_EQ(static_cast<int>(ErrCode::TreeInvalidNode), 10001);

@@ -21,15 +21,114 @@ module;
 #include "Scriptforge.Define.hpp"
 #include "Scriptforge.Pch.hpp"
 
-#define _SF_ARGV_BEGIN _SF_BEGIN inline namespace Argv {
-#define _SF_ARGV_END   _SF_END }
-
-#define _SF_ARGV _SF Argv::
-#define _SF_ARGVCLI _SF_ARGV ArgvCli<HashT>::
-#define _SF_ARGVCLI_TEM template<isHash HashT>
-
 export module Scriptforge.Argv;
 
+import Scriptforge.Concept;
+
+_SF_ARGV_BEGIN
+export enum class ArgvType : size_t {
+    Command = 1,
+    Option = 2,
+    Argument = 3
+};
+
+export namespace Hash {
+    struct FNV_1a_32 {
+        static constexpr uint32_t hash(std::string_view s) {
+            uint32_t h = 0x811C9DC5u;
+            for (char c : s)
+                h = (h ^ (uint8_t)c) * 0x01000193u;
+            return h;
+        }
+    };
+}
+
+
+namespace detail {
+    template<typename HashT>
+    consteval bool verifyHashConstexpr();
+
+    template<typename T>
+    concept isArgvTypeCommand =
+        std::movable<T>;
+    template<typename T>
+    concept isArgvTypeOption =
+        std::movable<T>;
+    template<typename T>
+    concept isArgvTypeArgument =
+        std::movable<T>;
+}
+
+/*
+ * @details 一个用于检查类型是否具有 constexpr hash 函数的概念。
+ * 可以编写以下类型的哈希结构体/类：
+ * ```cpp
+ * struct MyHash {
+ *     static constexpr uint32_t hash(std::string_view s) {
+ *         //TODO: 实现哈希函数
+ *     }
+ * };
+ * ```
+ */
+template<typename HashT>
+concept isHash = requires(std::string_view s) {
+    { HashT::hash(s) } -> std::convertible_to<uint32_t>;
+};
+
+/**
+ * @details 一个用于检查类型是否为有效的 argv 未知命令的概念。
+ * 可以编写以下类型的命令结构体/类：
+ * ```cpp
+ * struct ArgvUnknown {
+ *     static void run(std::vector<std::string>::iterator it, std::string_view arg, std::ostream& os, std::ostream& err, std::istream& is) {
+ *         err << "Running unknown command: " << arg << std::endl;
+ *     }
+ * };
+ * ```
+ */
+template<typename T>
+concept isArgvUnknown = requires(std::vector<std::string>::iterator it, std::string_view s, std::ostream & os, std::ostream & err, std::istream & is) {
+    T::run(it, s, os, err, is);
+};
+
+template<typename T>
+concept isArgvCommand =
+std::convertible_to<decltype(T::type), Scriptforge::Argv::ArgvType>&&
+_SF_CONCEPT exactlyOne<detail::isArgvTypeCommand<T>, detail::isArgvTypeOption<T>, detail::isArgvTypeArgument<T>>;
+
+export
+template<isHash HashT = Hash::FNV_1a_32>
+class BasicArgvCli {
+public:
+    static_assert(detail::verifyHashConstexpr<HashT>(),
+        "HashT::hash(std::string_view) must be callable within constant expressions (constexpr)");
+    BasicArgvCli() = default;
+    BasicArgvCli(const BasicArgvCli&) = delete;
+    BasicArgvCli(BasicArgvCli&&) = delete;
+    BasicArgvCli& operator=(BasicArgvCli&&) noexcept = delete;
+    BasicArgvCli(const int argc, const char* argv[], std::ostream& os,std::ostream& errs, std::istream& is);
+    void init(const int argc, const char* argv[], std::ostream& os, std::ostream& errs, std::istream& is);
+    template<isArgvUnknown UnknownCommand, isArgvCommand... Commands>
+        //requires (isAllCommandHashUnique<HashT, UnknownCommand, Commands...>)
+    void run();
+};
+_SF_ARGV_END
+
+_SF_ARGV_BEGIN
+
+namespace detail {
+    template<typename HashT>
+    consteval bool verifyHashConstexpr() {
+        std::string_view test_s = "test";
+        // 真正在常量表达式上下文执行调用；失败此处直接consteval报错
+        [[maybe_unused]] auto h = HashT::hash(test_s);
+        return true;
+    }
+}
+
+_SF_ARGV_END
+
+#ifdef _SF_OLD
 _SF_ARGV_BEGIN
 export namespace Hash {
     struct FNV_1a_32 {
@@ -239,3 +338,4 @@ const std::vector<std::string>& _SF_ARGVCLI getArgv() const {
     return m_argv;
 }
 _SF_ARGV_END
+#endif

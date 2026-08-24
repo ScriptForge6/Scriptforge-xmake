@@ -10,6 +10,7 @@
 // limitations under the License.
 module;
 
+#include "Scriptforge.Define.hpp"
 #include "Scriptforge.Pch.hpp"
 
 export module Scriptforge.ThreadError;
@@ -20,149 +21,195 @@ import Scriptforge.ErrCode.throwError;
 import Scriptforge.Local;
 import Scriptforge.Msg;
 
-namespace Scriptforge {
-    inline namespace Err {
+_SF_ERR_BEGIN
 
-        export template <bool Async = false>
-            class ThreadError {
-            public:
-                ThreadError(Scriptforge::Local::Lang lang);  // 改为值语义，避免悬空引用
-                ~ThreadError();
+export template <bool Async = false>
+class ThreadError {
+public:
+    ThreadError(const Scriptforge::Local::Lang& lang);
+    ThreadError(Scriptforge::Local::Lang&& lang);
+    ~ThreadError();
 
-                ThreadError(const ThreadError&) = delete;
-                ThreadError& operator=(const ThreadError&) = delete;
-                ThreadError(ThreadError&&) = delete;
-                ThreadError& operator=(ThreadError&&) = delete;
+    ThreadError(const ThreadError&) = delete;
+    ThreadError& operator=(const ThreadError&) = delete;
+    ThreadError(ThreadError&&) = delete;
+    ThreadError& operator=(ThreadError&&) = delete;
 
-                void setThreadFunction(std::function<void(std::stop_token)> run);
-                void start();
-                void stop();
+    void setThreadFunction(std::function<void(std::stop_token)> run);
+    void start();
+    void stop();
 
-                void waitForCompletion();
-                bool isRunning() const;
-                std::future<void> getFuture();
+    void waitForCompletion();
+    bool isRunning() const;
+    std::future<void> getFuture();
 
-            private:
-                struct State {
-                    std::mutex mtx;
-                    std::atomic<bool> isRunning{ false };
-                    std::exception_ptr storedException;
-                    std::function<void(std::stop_token)> taskFunc;
-                    std::promise<void> prom;
-                    std::future<void> future;
-                };
+private:
+    struct State {
+        std::mutex mtx;
+        std::atomic<bool> isRunning{ false };
+        std::exception_ptr storedException;
+        std::function<void(std::stop_token)> taskFunc;
+        std::promise<void> prom;
+        std::future<void> future;
+    };
 
-                static void threadFunc(std::shared_ptr<State> state, std::stop_token st);
+    static void threadFunc(std::shared_ptr<State> state, std::stop_token st);
 
-                Scriptforge::Local::Lang m_lang;  // 值语义
-                std::shared_ptr<State> m_state;
-                std::jthread m_thread;
-                std::atomic<bool> m_starting{ false };
-        };
+    Scriptforge::Local::Lang m_lang;
+    std::shared_ptr<State> m_state;
+    std::jthread m_thread;
+    std::atomic<bool> m_starting{ false };
+};
 
+_SF_ERR_END
+
+_SF_ERR_BEGIN
+
+_SF_THREADERROR_TEM
+_SF_THREADERROR ThreadError(const Scriptforge::Local::Lang& lang)
+    : m_lang(lang)
+    , m_state(std::make_shared<State>()) {}
+
+_SF_THREADERROR_TEM
+_SF_THREADERROR ThreadError(Scriptforge::Local::Lang&& lang)
+    : m_lang(std::move(lang))
+    , m_state(std::make_shared<State>()) {}
+
+_SF_THREADERROR_TEM
+_SF_THREADERROR ~ThreadError() {
+    stop();
+}
+
+_SF_THREADERROR_TEM
+void _SF_THREADERROR setThreadFunction(std::function<void(std::stop_token)> run) {
+    std::lock_guard<std::mutex> lock(m_state->mtx);
+    if (m_state->isRunning.load(std::memory_order_acquire)) {
+        throw std::logic_error("cannot set task while thread is running");
+    }
+    m_state->taskFunc = std::move(run);
+}
+
+_SF_THREADERROR_TEM
+void _SF_THREADERROR start() {
+    bool expected = false;
+    if (!m_starting.compare_exchange_strong(expected, true,
+        std::memory_order_acq_rel)) {
+        _SF_THROW throwError(
+            _SF_CODE ErrCode::ThreadErrorThreadAlreadyRunning,
+            __func__, m_lang);
+    }
+
+    struct StartingGuard {
+        std::atomic<bool>& flag;
+        ~StartingGuard() { flag.store(false, std::memory_order_release); }
+    } guard{ m_starting };
+
+    std::jthread oldThread;
+
+    // 阶段一：在锁内完成所有状态校验与数据准备
+    {
+        std::lock_guard<std::mutex> lock(m_state->mtx);
+
+        if (!m_state->taskFunc) {
+            _SF_THROW throwError(
+                _SF_CODE ErrCode::ThreadErrorThreadNoTask,
+                __func__, m_lang);
+        }
+
+        if (m_state->isRunning.load(std::memory_order_acquire)) {
+            _SF_THROW throwError(
+                _SF_CODE ErrCode::ThreadErrorThreadAlreadyRunning,
+                __func__, m_lang);
+        }
+
+        m_state->storedException = nullptr;
+
+        if constexpr (Async) {
+            m_state->prom = std::promise<void>();
+            m_state->future = m_state->prom.get_future();
+        }
+
+        if (m_thread.joinable()) {  // 是否需要进一步检查如果返回 false 的可能性
+            oldThread = std::move(m_thread);
+        }
+
+        m_state->isRunning.store(true, std::memory_order_release);
+    }
+
+    // 阶段二：在锁外 join 旧线程
+    if (oldThread.joinable()) {   // 是否需要进一步检查如果返回 false 的可能性
+        try {
+            oldThread.join();
+        }
+        catch (...) {
+            // 忽略 join 异常，继续启动新线程  //是否需要完整忽略
+        }
+    }
+
+    // 阶段三：在锁外创建新线程
+    try {
+        m_thread = std::jthread([state = m_state](std::stop_token st) { //拷贝m_state没加锁，是否安全
+            threadFunc(state, st);
+            });
+    }
+    catch (...) {
+        std::lock_guard<std::mutex> lock(m_state->mtx);
+        m_state->isRunning.store(false, std::memory_order_release);
+        throw;
     }
 }
 
-namespace Scriptforge {
-    inline namespace Err {
+_SF_THREADERROR_TEM
+void _SF_THREADERROR stop() {
+    std::jthread threadToJoin;
 
-        template<bool Async>
-        ThreadError<Async>::ThreadError(Scriptforge::Local::Lang lang)
-            : m_lang(std::move(lang))
-            , m_state(std::make_shared<State>()) {}
-
-        template <bool Async>
-        ThreadError<Async>::~ThreadError() {
-            stop();
+    {
+        std::lock_guard<std::mutex> lock(m_state->mtx);
+        if (m_thread.joinable()) {  // 是否需要进一步检查如果返回 false 的可能性
+            m_thread.request_stop();
+            threadToJoin = std::move(m_thread);
         }
+    }
 
-        template<bool Async>
-        void ThreadError<Async>::setThreadFunction(std::function<void(std::stop_token)> run) {
+    if (threadToJoin.joinable()) {
+        try {
+            threadToJoin.join();
+        }
+        catch (...) {
+            // 忽略 join 异常，确保后续状态清理继续执行  //是否需要完整忽略
+        }
+    }
+
+    // 后备：确保状态一致
+    {
+        std::lock_guard<std::mutex> lock(m_state->mtx);
+        m_state->isRunning.store(false, std::memory_order_release);
+    }
+}
+
+_SF_THREADERROR_TEM
+void _SF_THREADERROR waitForCompletion() {
+    if constexpr (Async) {
+        std::future<void> fut;
+        bool hasFuture = false;
+        {
             std::lock_guard<std::mutex> lock(m_state->mtx);
-            if (m_state->isRunning.load(std::memory_order_acquire)) {
-                throw std::logic_error("cannot set task while thread is running");
-            }
-            m_state->taskFunc = std::move(run);
-        }
-
-        template<bool Async>
-        void ThreadError<Async>::start() {
-            bool expected = false;
-            if (!m_starting.compare_exchange_strong(expected, true,
-                std::memory_order_acq_rel)) {
-                Scriptforge::ErrCode::throwError(
-                    Scriptforge::ErrCode::ErrCode::ThreadErrorThreadAlreadyRunning,
-                    __func__, m_lang);
-            }
-
-            struct StartingGuard {
-                std::atomic<bool>& flag;
-                ~StartingGuard() { flag.store(false, std::memory_order_release); }
-            } guard{ m_starting };
-
-            std::jthread oldThread;
-
-            // 阶段一：在锁内完成所有状态校验与数据准备
-            {
-                std::lock_guard<std::mutex> lock(m_state->mtx);
-
-                if (!m_state->taskFunc) {
-                    Scriptforge::ErrCode::throwError(
-                        Scriptforge::ErrCode::ErrCode::ThreadErrorThreadNoTask,
-                        __func__, m_lang);
-                }
-
-                if (m_state->isRunning.load(std::memory_order_acquire)) {
-                    Scriptforge::ErrCode::throwError(
-                        Scriptforge::ErrCode::ErrCode::ThreadErrorThreadAlreadyRunning,
-                        __func__, m_lang);
-                }
-
-                m_state->storedException = nullptr;
-
-                if constexpr (Async) {
-                    m_state->prom = std::promise<void>();
-                    m_state->future = m_state->prom.get_future();
-                }
-
-                if (m_thread.joinable()) {
-                    oldThread = std::move(m_thread);
-                }
-
-                m_state->isRunning.store(true, std::memory_order_release);
-            }
-
-            // 阶段二：在锁外 join 旧线程
-            if (oldThread.joinable()) {
-                try {
-                    oldThread.join();
-                }
-                catch (...) {
-                    // 忽略 join 异常，继续启动新线程
-                }
-            }
-
-            // 阶段三：在锁外创建新线程
-            try {
-                m_thread = std::jthread([state = m_state](std::stop_token st) {
-                    threadFunc(state, st);
-                    });
-            }
-            catch (...) {
-                std::lock_guard<std::mutex> lock(m_state->mtx);
-                m_state->isRunning.store(false, std::memory_order_release);
-                throw;
+            if (m_state->future.valid()) {
+                fut = std::move(m_state->future);
+                hasFuture = true;
             }
         }
 
-        template<bool Async>
-        void ThreadError<Async>::stop() {
+        if (hasFuture) {
+            // 通过 future 等待；异常会通过 future 抛出
+            fut.get();
+        }
+        else {
+            // Future 已被移走或无效，回退到直接 join
             std::jthread threadToJoin;
-
             {
                 std::lock_guard<std::mutex> lock(m_state->mtx);
                 if (m_thread.joinable()) {
-                    m_thread.request_stop();
                     threadToJoin = std::move(m_thread);
                 }
             }
@@ -172,155 +219,108 @@ namespace Scriptforge {
                     threadToJoin.join();
                 }
                 catch (...) {
-                    // 忽略 join 异常，确保后续状态清理继续执行
+                    // 忽略 join 异常
                 }
-            }
-
-            // 后备：确保状态一致
-            {
-                std::lock_guard<std::mutex> lock(m_state->mtx);
-                m_state->isRunning.store(false, std::memory_order_release);
-            }
-        }
-
-        template<bool Async>
-        void ThreadError<Async>::waitForCompletion() {
-            if constexpr (Async) {
-                std::future<void> fut;
-                bool hasFuture = false;
-                {
-                    std::lock_guard<std::mutex> lock(m_state->mtx);
-                    if (m_state->future.valid()) {
-                        fut = std::move(m_state->future);
-                        hasFuture = true;
-                    }
-                }
-
-                if (hasFuture) {
-                    // 通过 future 等待；异常会通过 future 抛出
-                    fut.get();
-                }
-                else {
-                    // Future 已被移走或无效，回退到直接 join
-                    std::jthread threadToJoin;
-                    {
-                        std::lock_guard<std::mutex> lock(m_state->mtx);
-                        if (m_thread.joinable()) {
-                            threadToJoin = std::move(m_thread);
-                        }
-                    }
-
-                    if (threadToJoin.joinable()) {
-                        try {
-                            threadToJoin.join();
-                        }
-                        catch (...) {
-                            // 忽略 join 异常
-                        }
-                    }
-
-                    std::lock_guard<std::mutex> lock(m_state->mtx);
-                    if (m_state->storedException) {
-                        std::rethrow_exception(m_state->storedException);
-                    }
-                }
-            }
-            else {
-                std::jthread threadToJoin;
-                {
-                    std::lock_guard<std::mutex> lock(m_state->mtx);
-                    if (m_thread.joinable()) {
-                        threadToJoin = std::move(m_thread);
-                    }
-                }
-
-                if (threadToJoin.joinable()) {
-                    try {
-                        threadToJoin.join();
-                    }
-                    catch (...) {
-                        // 忽略 join 异常，确保异常检查继续执行
-                    }
-                }
-
-                std::lock_guard<std::mutex> lock(m_state->mtx);
-                if (m_state->storedException) {
-                    std::rethrow_exception(m_state->storedException);
-                }
-            }
-        }
-
-        template<bool Async>
-        bool ThreadError<Async>::isRunning() const {
-            return m_state->isRunning.load(std::memory_order_acquire);
-        }
-
-        template<bool Async>
-        std::future<void> ThreadError<Async>::getFuture() {
-            if constexpr (!Async) {
-                throw std::logic_error("getFuture is only available in async mode");
             }
 
             std::lock_guard<std::mutex> lock(m_state->mtx);
-            if (!m_state->future.valid()) {
-                throw std::logic_error("no valid completion future");
+            if (m_state->storedException) {
+                std::rethrow_exception(m_state->storedException);
             }
-            return std::move(m_state->future);
+        }
+    }
+    else {
+        std::jthread threadToJoin;
+        {
+            std::lock_guard<std::mutex> lock(m_state->mtx);
+            if (m_thread.joinable()) {
+                threadToJoin = std::move(m_thread);
+            }
         }
 
-        template<bool Async>
-        void ThreadError<Async>::threadFunc(
-            std::shared_ptr<State> state,
-            std::stop_token st)
-        {
-            // RAII 保证：无论发生任何异常，isRunning 最终必定为 false
-            struct IsRunningGuard {
-                std::atomic<bool>* flag;
-                ~IsRunningGuard() noexcept {
-                    flag->store(false, std::memory_order_release);
-                }
-            } runningGuard{ &state->isRunning };
-
+        if (threadToJoin.joinable()) {
             try {
-                // 在 try 内拷贝 task，防止拷贝异常泄漏到 jthread 外导致 terminate
-                std::function<void(std::stop_token)> task;
-                {
-                    std::lock_guard<std::mutex> lock(state->mtx);
-                    task = state->taskFunc;
-                }
-
-                if (task) {
-                    task(st);
-                }
-
-                if constexpr (Async) {
-                    std::lock_guard<std::mutex> lock(state->mtx);
-                    try {
-                        state->prom.set_value();
-                    }
-                    catch (...) {
-                        // 忽略 set_value 可能抛出的 std::future_error
-                    }
-                }
+                threadToJoin.join();
             }
             catch (...) {
-                std::exception_ptr ep = std::current_exception();
-                {
-                    std::lock_guard<std::mutex> lock(state->mtx);
-                    state->storedException = ep;
-                }
-
-                if constexpr (Async) {
-                    std::lock_guard<std::mutex> lock(state->mtx);
-                    try {
-                        state->prom.set_exception(ep);
-                    }
-                    catch (...) {
-                        // 忽略 set_exception 可能抛出的 std::future_error
-                    }
-                }
+                // 忽略 join 异常，确保异常检查继续执行
             }
         }
 
+        std::lock_guard<std::mutex> lock(m_state->mtx);
+        if (m_state->storedException) {
+            std::rethrow_exception(m_state->storedException);
+        }
     }
 }
+
+_SF_THREADERROR_TEM
+bool _SF_THREADERROR isRunning() const {
+    return m_state->isRunning.load(std::memory_order_acquire);
+}
+
+_SF_THREADERROR_TEM
+std::future<void> _SF_THREADERROR getFuture() {
+    if constexpr (!Async) {
+        throw std::logic_error("getFuture is only available in async mode");
+    }
+
+    std::lock_guard<std::mutex> lock(m_state->mtx);
+    if (!m_state->future.valid()) {
+        throw std::logic_error("no valid completion future");
+    }
+    return std::move(m_state->future);
+}
+
+_SF_THREADERROR_TEM
+void _SF_THREADERROR threadFunc(
+    std::shared_ptr<State> state,
+    std::stop_token st) {
+    struct IsRunningGuard {
+        std::atomic<bool>* flag;
+        ~IsRunningGuard() noexcept {
+            flag->store(false, std::memory_order_release);
+        }
+    } runningGuard{ &state->isRunning };   //未加锁使用std::shared_ptr访问m_state，是否安全
+
+    try {
+        std::function<void(std::stop_token)> task;
+        {
+            std::lock_guard<std::mutex> lock(state->mtx);
+            task = state->taskFunc;
+        }
+
+        if (task) {
+            task(st);
+        }
+
+        if constexpr (Async) {
+            std::lock_guard<std::mutex> lock(state->mtx);
+            try {
+                state->prom.set_value();
+            }
+            catch (...) {
+                // 忽略 set_value 可能抛出的 std::future_error   //是否需要选择忽略，而非爆出
+            }
+        }
+    }
+    catch (...) {
+        std::exception_ptr ep = std::current_exception();
+        {
+            std::lock_guard<std::mutex> lock(state->mtx);
+            state->storedException = ep;
+        }
+
+        if constexpr (Async) {
+            std::lock_guard<std::mutex> lock(state->mtx);   //是否需要和上部代码合并
+            try {
+                state->prom.set_exception(ep);
+            }
+            catch (...) {
+                // 忽略 set_exception 可能抛出的 std::future_error   //是否需要选择忽略，而非爆出
+            }
+        }
+    }
+}
+
+_SF_ERR_END

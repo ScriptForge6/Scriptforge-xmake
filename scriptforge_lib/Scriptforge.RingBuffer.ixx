@@ -10,10 +10,11 @@
 // limitations under the License.
 module;
 
+#include "Scriptforge.Define.hpp"
 #include "Scriptforge.Pch.hpp"
 
 export module Scriptforge.RingBuffer;
-
+#if 0
 import Scriptforge.Err;
 import Scriptforge.ErrCode;
 import Scriptforge.ErrCode.throwError;
@@ -97,7 +98,7 @@ namespace Scriptforge {
 		RingBuffer<T, Alloc>::RingBuffer(const size_type capacity, const Scriptforge::Lang lang)
 			:m_lang(lang) {
 			if (capacity == 0) {
-				Scriptforge::ErrCode::throwError(Scriptforge::ErrCode::ErrCode::RingBufferCapacityBeZero, __func__, m_lang);
+				Scriptforge::ErrCode::throwError(_SF_CODE RingBufferCapacityBeZero, __func__, m_lang);
 			}
 		}
 
@@ -157,3 +158,4 @@ namespace Scriptforge {
 		}
 	}
 }
+#endif

@@ -1,6 +1,8 @@
 module;
-#include <gtest/gtest.h>
+
 #include "Scriptforge.Pch.hpp"
+
+#include <gtest/gtest.h>
 
 export module ThreadError.Test;
 
@@ -13,8 +15,7 @@ namespace fs = std::filesystem;
 using namespace Scriptforge::Local;
 using namespace Scriptforge::Err;
 
-namespace Scriptforge::Err::Test
-{
+namespace Scriptforge::Err::Test {
     TEST(ThreadErrorTest, SyncStartAndCompletion) {
         auto langs = getAvailableLanguages("./lang");
         ASSERT_FALSE(langs.empty()) << "未找到语言文件";

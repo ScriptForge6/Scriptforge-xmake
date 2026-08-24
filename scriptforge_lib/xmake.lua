@@ -35,4 +35,7 @@ target(LIB_NAME)
     
     add_files(path.join(LIB_DIR, "*.ixx"))
     add_files(path.join(LIB_DIR, "*.cpp"))
+    add_headerfiles(path.join(LIB_DIR, "*.hpp"))
+
+    add_extrafiles(path.join(LANG_DIR, "*.json"))
 target_end()

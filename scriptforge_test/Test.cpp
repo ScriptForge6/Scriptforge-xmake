@@ -14,7 +14,8 @@
  * @brief 这是一个GTest测试文件，用于测试Scriptforge项目中的各个模块。该文件包含了一个简单的测试用例，验证了项目中某些功能的基本正确性。通过运行这个测试，可以确保测试框架在正常工作。
  * @date 2026/3/29
  */
-#include "gtest/gtest.h"
+
+#include <gtest/gtest.h>
 
 namespace Scriptforge::Test::Test {
 	TEST(TestCaseName, TestName) {
