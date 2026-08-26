@@ -555,10 +555,10 @@ Scriptforge-xmake
 │   ├── Scriptforge.Argv.ixx
 │   ├── Scriptforge.Base64.ixx
 │   ├── Scriptforge.ByteBuffer.ixx
+│   ├── Scriptforge.Concept.ixx
 │   ├── Scriptforge.Define.hpp
 │   ├── Scriptforge.Err.ixx
 │   ├── Scriptforge.ErrCode.ixx
-│   ├── Scriptforge.ErrCode.throwError.ixx
 │   ├── Scriptforge.LanguageCode.ixx
 │   ├── Scriptforge.Local.ixx
 │   ├── Scriptforge.Log.ixx
@@ -567,6 +567,7 @@ Scriptforge-xmake
 │   ├── Scriptforge.RingBuffer.ixx
 │   ├── Scriptforge.StringConversion.ixx
 │   ├── Scriptforge.ThreadError.ixx
+│   ├── Scriptforge.ThrowError.ixx
 │   ├── Scriptforge.Tree.ixx
 │   ├── Scriptforge.Version.ixx
 │   ├── Scriptforge.ixx
@@ -587,6 +588,7 @@ Scriptforge-xmake
 │   ├── ThreadError.Test.ixx
 │   ├── gmock_main.cpp
 │   └── xmake.lua
+├── token设计.md
 ├── xmake.lua
 └── 更新方向.md
 ```
