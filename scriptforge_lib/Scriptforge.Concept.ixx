@@ -26,23 +26,23 @@ export module Scriptforge.Concept;
 _SF_CONCEPT_BEGIN
 
 template<bool... Bs>
-constexpr size_t count_true = (0 + ... + (Bs ? 1 : 0));
+constexpr size_t countTrue = (0 + ... + (Bs ? 1 : 0));
 
 export
 template<bool... Bs>
-concept exactlyOne = count_true<Bs...> == 1;
+concept exactlyOne = countTrue<Bs...> == 1;
 
 export
 template<bool... Bs>
-concept atLeastOne = count_true<Bs...> >= 1;
+concept atLeastOne = countTrue<Bs...> >= 1;
 
 export
 template<bool... Bs>
-concept noneTrue = count_true<Bs...> == 0;
+concept noneTrue = countTrue<Bs...> == 0;
 
 export
 template<bool... Bs>
-concept atMostOne = count_true<Bs...> <= 1;
+concept atMostOne = countTrue<Bs...> <= 1;
 
 
 _SF_CONCEPT_END
