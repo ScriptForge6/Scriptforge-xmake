@@ -43,6 +43,16 @@ export namespace Hash {
     };
 }
 
+export
+struct ArgvParseContext {
+    std::vector<std::string>::iterator it;
+    std::vector<std::string>::iterator end;
+    std::ostream& os;
+    std::ostream& err;
+    std::istream& is;
+};
+
+struct ArgvRoot {};
 
 namespace detail {
     template<typename HashT>
@@ -50,14 +60,35 @@ namespace detail {
 
     template<typename T>
     concept isArgvTypeCommand =
-        std::movable<T>;
+        requires {
+            requires T::type == _SF_ARGV ArgvType::Command;
+            { T::name } -> std::convertible_to<std::string_view>;
+            { T::alias } -> std::convertible_to<std::optional<std::string_view>>;
+            typename T::parent;
+
+            { T::run(std::declval<ArgvParseContext&>()) } -> std::same_as<void>;
+    };
     template<typename T>
     concept isArgvTypeOption =
-        std::movable<T>;
+        requires {
+            requires T::type == _SF_ARGV ArgvType::Option;
+            { T::name } -> std::convertible_to<std::string_view>;
+            { T::alias } -> std::convertible_to<std::optional<std::string_view>>;
+            
+    };
     template<typename T>
     concept isArgvTypeArgument =
         std::movable<T>;
 }
+
+template<typename T, typename... Pack>
+concept isPparentInPack = 
+requires { typename T::parent; }&&
+(std::same_as<typename T::parent, Pack> || ...)
+|| std::same_as<typename T::parent, ArgvRoot>;
+
+template<typename... Commands>
+concept isAllParentsValid = (isPparentInPack<Commands, Commands...> && ...);
 
 /*
  * @details 一个用于检查类型是否具有 constexpr hash 函数的概念。
@@ -80,20 +111,20 @@ concept isHash = requires(std::string_view s) {
  * 可以编写以下类型的命令结构体/类：
  * ```cpp
  * struct ArgvUnknown {
- *     static void run(std::vector<std::string>::iterator it, std::string_view arg, std::ostream& os, std::ostream& err, std::istream& is) {
+ *     static void run(const ArgsContext& ctx, std::string_view arg) {
  *         err << "Running unknown command: " << arg << std::endl;
  *     }
  * };
  * ```
  */
 template<typename T>
-concept isArgvUnknown = requires(std::vector<std::string>::iterator it, std::string_view s, std::ostream & os, std::ostream & err, std::istream & is) {
-    T::run(it, s, os, err, is);
+concept isArgvUnknown = requires(ArgvParseContext ctx, std::string_view arg) {
+    T::run(ctx, arg);
 };
 
 template<typename T>
 concept isArgvCommand =
-std::convertible_to<decltype(T::type), Scriptforge::Argv::ArgvType>&&
+std::convertible_to<decltype(T::type), _SF_ARGV ArgvType>&&
 _SF_CONCEPT exactlyOne<detail::isArgvTypeCommand<T>, detail::isArgvTypeOption<T>, detail::isArgvTypeArgument<T>>;
 
 export
@@ -109,6 +140,7 @@ public:
     BasicArgvCli(const int argc, const char* argv[], std::ostream& os,std::ostream& errs, std::istream& is);
     void init(const int argc, const char* argv[], std::ostream& os, std::ostream& errs, std::istream& is);
     template<isArgvUnknown UnknownCommand, isArgvCommand... Commands>
+        requires isAllParentsValid<Commands...>
         //requires (isAllCommandHashUnique<HashT, UnknownCommand, Commands...>)
     void run();
 };

@@ -23,9 +23,11 @@ target(TEST_NAME)
     add_packages("nlohmann_json")
     add_packages("utfcpp")
 
+    
+
     local local_ANTIDEB_RAND_DIR = ANTIDEB_RAND_DIR
 
-    before_build(function (target)
+    on_load(function (target)
         import("pre", {always_build = true})
         pre.run(local_ANTIDEB_RAND_DIR)
     end)
