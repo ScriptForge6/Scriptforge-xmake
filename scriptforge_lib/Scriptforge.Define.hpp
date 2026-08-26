@@ -5,7 +5,6 @@
 #define _SF_BEGIN namespace Scriptforge {
 #define _SF_END }
 #define _SF /*::*/Scriptforge::
-#define _SF_EXPORT export
 
 
 #define _SF_ARGV_BEGIN _SF_BEGIN inline namespace Argv {
