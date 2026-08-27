@@ -24,7 +24,7 @@ export module Scriptforge.ErrCode;
 import Scriptforge.Err;
 import Scriptforge.LanguageCode;
 
-_SF_CODE_BEGIN
+SCRIPTFORGE_CODE_BEGIN
 
 export enum class ErrCode {
 	TreeInvalidNode = 10001,                // Tree0001: Invalid node
@@ -85,17 +85,17 @@ export std::ostream& operator<<(std::ostream& os, const ErrCode& errCode) {
 	return os;
 }
 
-_SF_CODE_END
+SCRIPTFORGE_CODE_END
 
 export
 template<>
-struct std::formatter<_SF_CODE ErrCode>
+struct std::formatter<SCRIPTFORGE_CODE ErrCode>
 {
 	constexpr auto parse(std::format_parse_context& ctx) {
 		return ctx.begin();
 	}
 	template<typename FmtCtx>
-	auto format(const _SF_CODE ErrCode& code, FmtCtx& ctx) const {
-		return std::format_to(ctx.out(), "{}", _SF_CODE to_string(code));
+	auto format(const SCRIPTFORGE_CODE ErrCode& code, FmtCtx& ctx) const {
+		return std::format_to(ctx.out(), "{}", SCRIPTFORGE_CODE to_string(code));
 	}
 };

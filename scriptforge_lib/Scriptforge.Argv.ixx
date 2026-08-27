@@ -25,7 +25,7 @@ export module Scriptforge.Argv;
 
 import Scriptforge.Concept;
 
-_SF_ARGV_BEGIN
+SCRIPTFORGE_ARGV_BEGIN
 export enum class ArgvType : size_t {
     Command = 1,
     Option = 2,
@@ -61,17 +61,17 @@ namespace detail {
     template<typename T>
     concept isArgvTypeCommand =
         requires {
-            requires T::type == _SF_ARGV ArgvType::Command;
+            requires T::type == SCRIPTFORGE_ARGV ArgvType::Command;
             { T::name } -> std::convertible_to<std::string_view>;
             { T::alias } -> std::convertible_to<std::optional<std::string_view>>;
             typename T::parent;
 
-            { T::run(std::declval<ArgvParseContext&>()) } -> std::same_as<void>;
+            //{ T::run(std::declval<ArgvParseContext&>()) } -> std::same_as<void>;
     };
     template<typename T>
     concept isArgvTypeOption =
         requires {
-            requires T::type == _SF_ARGV ArgvType::Option;
+            requires T::type == SCRIPTFORGE_ARGV ArgvType::Option;
             { T::name } -> std::convertible_to<std::string_view>;
             { T::alias } -> std::convertible_to<std::optional<std::string_view>>;
             
@@ -124,8 +124,8 @@ concept isArgvUnknown = requires(ArgvParseContext ctx, std::string_view arg) {
 
 template<typename T>
 concept isArgvCommand =
-std::convertible_to<decltype(T::type), _SF_ARGV ArgvType>&&
-_SF_CONCEPT exactlyOne<detail::isArgvTypeCommand<T>, detail::isArgvTypeOption<T>, detail::isArgvTypeArgument<T>>;
+std::convertible_to<decltype(T::type), SCRIPTFORGE_ARGV ArgvType>&&
+SCRIPTFORGE_CONCEPT exactlyOne<detail::isArgvTypeCommand<T>, detail::isArgvTypeOption<T>, detail::isArgvTypeArgument<T>>;
 
 export
 template<isHash HashT = Hash::FNV_1a_32>
@@ -144,9 +144,9 @@ public:
         //requires (isAllCommandHashUnique<HashT, UnknownCommand, Commands...>)
     void run();
 };
-_SF_ARGV_END
+SCRIPTFORGE_ARGV_END
 
-_SF_ARGV_BEGIN
+SCRIPTFORGE_ARGV_BEGIN
 
 namespace detail {
     template<typename HashT>
@@ -158,10 +158,10 @@ namespace detail {
     }
 }
 
-_SF_ARGV_END
+SCRIPTFORGE_ARGV_END
 
-#ifdef _SF_OLD
-_SF_ARGV_BEGIN
+#ifdef SCRIPTFORGE_OLD
+SCRIPTFORGE_ARGV_BEGIN
 export namespace Hash {
     struct FNV_1a_32 {
         static constexpr uint32_t hash(std::string_view s) {
@@ -271,9 +271,9 @@ private:
     std::istream* m_is{ &std::cin };
     bool m_stopFlag = false;
 };
-_SF_ARGV_END
+SCRIPTFORGE_ARGV_END
 
-_SF_ARGV_BEGIN
+SCRIPTFORGE_ARGV_BEGIN
 template<typename HashT>
 consteval bool testHashConstexpr() {
     // 随便传一段字符串，能编译通过说明 HashT::hash 是 constexpr
@@ -317,23 +317,23 @@ namespace DetectHashCollision {
         return !hasHashCollision<hash_arr.size()>(hash_arr);
     }
 }
-_SF_ARGVCLI_TEM
-_SF_ARGVCLI ArgvCli(const int& argc, char* argv[], std::ostream& os, std::ostream& err, std::istream& is) {
+SCRIPTFORGE_ARGVCLI_TEM
+SCRIPTFORGE_ARGVCLI ArgvCli(const int& argc, char* argv[], std::ostream& os, std::ostream& err, std::istream& is) {
     init(argc, argv, os, err, is);
 }
 
-_SF_ARGVCLI_TEM
-void _SF_ARGVCLI init(const int& argc, char* argv[], std::ostream& os, std::ostream& err, std::istream& is) {
+SCRIPTFORGE_ARGVCLI_TEM
+void SCRIPTFORGE_ARGVCLI init(const int& argc, char* argv[], std::ostream& os, std::ostream& err, std::istream& is) {
     m_os = &os;
     m_err = &err;
     m_is = &is;
     m_argv.assign(argv + 1, argv + argc);
 }
 
-_SF_ARGVCLI_TEM
+SCRIPTFORGE_ARGVCLI_TEM
 template<isArgvUnknown UnknownCommand, isArgvCommand... Commands>
     requires (isAllCommandHashUnique<HashT, UnknownCommand, Commands...>)
-void _SF_ARGVCLI run() {
+void SCRIPTFORGE_ARGVCLI run() {
     m_stopFlag = false;
     for (auto it = m_argv.begin(); it != m_argv.end(); ++it) {
         const auto& arg = *it;
@@ -360,14 +360,14 @@ void _SF_ARGVCLI run() {
     }
 }
 
-_SF_ARGVCLI_TEM
-void _SF_ARGVCLI stop() {
+SCRIPTFORGE_ARGVCLI_TEM
+void SCRIPTFORGE_ARGVCLI stop() {
     m_stopFlag = true;
 }
 
-_SF_ARGVCLI_TEM
-const std::vector<std::string>& _SF_ARGVCLI getArgv() const {
+SCRIPTFORGE_ARGVCLI_TEM
+const std::vector<std::string>& SCRIPTFORGE_ARGVCLI getArgv() const {
     return m_argv;
 }
-_SF_ARGV_END
+SCRIPTFORGE_ARGV_END
 #endif

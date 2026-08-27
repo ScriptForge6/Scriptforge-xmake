@@ -21,7 +21,7 @@ import Scriptforge.ErrCode.throwError;
 import Scriptforge.Local;
 import Scriptforge.Msg;
 
-_SF_ERR_BEGIN
+SCRIPTFORGE_ERR_BEGIN
 
 export template <bool Async = false>
 class ThreadError {
@@ -61,27 +61,27 @@ private:
     std::atomic<bool> m_starting{ false };
 };
 
-_SF_ERR_END
+SCRIPTFORGE_ERR_END
 
-_SF_ERR_BEGIN
+SCRIPTFORGE_ERR_BEGIN
 
-_SF_THREADERROR_TEM
-_SF_THREADERROR ThreadError(const Scriptforge::Local::Lang& lang)
+SCRIPTFORGE_THREADERROR_TEM
+SCRIPTFORGE_THREADERROR ThreadError(const Scriptforge::Local::Lang& lang)
     : m_lang(lang)
     , m_state(std::make_shared<State>()) {}
 
-_SF_THREADERROR_TEM
-_SF_THREADERROR ThreadError(Scriptforge::Local::Lang&& lang)
+SCRIPTFORGE_THREADERROR_TEM
+SCRIPTFORGE_THREADERROR ThreadError(Scriptforge::Local::Lang&& lang)
     : m_lang(std::move(lang))
     , m_state(std::make_shared<State>()) {}
 
-_SF_THREADERROR_TEM
-_SF_THREADERROR ~ThreadError() {
+SCRIPTFORGE_THREADERROR_TEM
+SCRIPTFORGE_THREADERROR ~ThreadError() {
     stop();
 }
 
-_SF_THREADERROR_TEM
-void _SF_THREADERROR setThreadFunction(std::function<void(std::stop_token)> run) {
+SCRIPTFORGE_THREADERROR_TEM
+void SCRIPTFORGE_THREADERROR setThreadFunction(std::function<void(std::stop_token)> run) {
     std::lock_guard<std::mutex> lock(m_state->mtx);
     if (m_state->isRunning.load(std::memory_order_acquire)) {
         throw std::logic_error("cannot set task while thread is running");
@@ -89,13 +89,13 @@ void _SF_THREADERROR setThreadFunction(std::function<void(std::stop_token)> run)
     m_state->taskFunc = std::move(run);
 }
 
-_SF_THREADERROR_TEM
-void _SF_THREADERROR start() {
+SCRIPTFORGE_THREADERROR_TEM
+void SCRIPTFORGE_THREADERROR start() {
     bool expected = false;
     if (!m_starting.compare_exchange_strong(expected, true,
         std::memory_order_acq_rel)) {
-        _SF_THROW throwError(
-            _SF_CODE ErrCode::ThreadErrorThreadAlreadyRunning,
+        SCRIPTFORGE_THROW throwError(
+            SCRIPTFORGE_CODE ErrCode::ThreadErrorThreadAlreadyRunning,
             __func__, m_lang);
     }
 
@@ -111,14 +111,14 @@ void _SF_THREADERROR start() {
         std::lock_guard<std::mutex> lock(m_state->mtx);
 
         if (!m_state->taskFunc) {
-            _SF_THROW throwError(
-                _SF_CODE ErrCode::ThreadErrorThreadNoTask,
+            SCRIPTFORGE_THROW throwError(
+                SCRIPTFORGE_CODE ErrCode::ThreadErrorThreadNoTask,
                 __func__, m_lang);
         }
 
         if (m_state->isRunning.load(std::memory_order_acquire)) {
-            _SF_THROW throwError(
-                _SF_CODE ErrCode::ThreadErrorThreadAlreadyRunning,
+            SCRIPTFORGE_THROW throwError(
+                SCRIPTFORGE_CODE ErrCode::ThreadErrorThreadAlreadyRunning,
                 __func__, m_lang);
         }
 
@@ -159,8 +159,8 @@ void _SF_THREADERROR start() {
     }
 }
 
-_SF_THREADERROR_TEM
-void _SF_THREADERROR stop() {
+SCRIPTFORGE_THREADERROR_TEM
+void SCRIPTFORGE_THREADERROR stop() {
     std::jthread threadToJoin;
 
     {
@@ -187,8 +187,8 @@ void _SF_THREADERROR stop() {
     }
 }
 
-_SF_THREADERROR_TEM
-void _SF_THREADERROR waitForCompletion() {
+SCRIPTFORGE_THREADERROR_TEM
+void SCRIPTFORGE_THREADERROR waitForCompletion() {
     if constexpr (Async) {
         std::future<void> fut;
         bool hasFuture = false;
@@ -254,13 +254,13 @@ void _SF_THREADERROR waitForCompletion() {
     }
 }
 
-_SF_THREADERROR_TEM
-bool _SF_THREADERROR isRunning() const {
+SCRIPTFORGE_THREADERROR_TEM
+bool SCRIPTFORGE_THREADERROR isRunning() const {
     return m_state->isRunning.load(std::memory_order_acquire);
 }
 
-_SF_THREADERROR_TEM
-std::future<void> _SF_THREADERROR getFuture() {
+SCRIPTFORGE_THREADERROR_TEM
+std::future<void> SCRIPTFORGE_THREADERROR getFuture() {
     if constexpr (!Async) {
         throw std::logic_error("getFuture is only available in async mode");
     }
@@ -272,8 +272,8 @@ std::future<void> _SF_THREADERROR getFuture() {
     return std::move(m_state->future);
 }
 
-_SF_THREADERROR_TEM
-void _SF_THREADERROR threadFunc(
+SCRIPTFORGE_THREADERROR_TEM
+void SCRIPTFORGE_THREADERROR threadFunc(
     std::shared_ptr<State> state,
     std::stop_token st) {
     struct IsRunningGuard {
@@ -323,4 +323,4 @@ void _SF_THREADERROR threadFunc(
     }
 }
 
-_SF_ERR_END
+SCRIPTFORGE_ERR_END

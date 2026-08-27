@@ -23,7 +23,7 @@ module;
 export module Scriptforge.AntiDebug;
 import Scriptforge.AntiDebug.RandomDefine;
 
-_SF_BEGIN
+SCRIPTFORGE_BEGIN
 namespace ADNS {
     export class ADCL {
     public:
@@ -59,4 +59,4 @@ inline namespace AntiDebug {
     export using AntiDebugger = ADNS::ADCL;
 }
     
-_SF_END
+SCRIPTFORGE_END

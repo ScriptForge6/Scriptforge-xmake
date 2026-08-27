@@ -23,7 +23,7 @@ module;
 
 export module Scriptforge.Concept;
 
-_SF_CONCEPT_BEGIN
+SCRIPTFORGE_CONCEPT_BEGIN
 
 template<bool... Bs>
 constexpr size_t countTrue = (0 + ... + (Bs ? 1 : 0));
@@ -45,4 +45,4 @@ template<bool... Bs>
 concept atMostOne = countTrue<Bs...> <= 1;
 
 
-_SF_CONCEPT_END
+SCRIPTFORGE_CONCEPT_END

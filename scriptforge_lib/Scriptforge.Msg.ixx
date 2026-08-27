@@ -23,7 +23,7 @@ module;
 
 export module Scriptforge.Msg;
 
-_SF_MSG_BEGIN
+SCRIPTFORGE_MSG_BEGIN
 export enum class InformationLevel {
 	Debug,
 	Info,
@@ -50,7 +50,7 @@ export std::string getInformationLevel(InformationLevel level) {
 }
 
 export
-_SF_MESSAGE_TEM_A
+SCRIPTFORGE_MESSAGE_TEM_A
 concept MessageRequires =
 std::copyable<T> &&
 std::copyable<Clock> &&
@@ -78,20 +78,20 @@ private:
 };
 
 export
-_SF_MESSAGE_TEM
+SCRIPTFORGE_MESSAGE_TEM
 &&
 	requires { Clock::to_time_t(std::declval<typename Clock::time_point>()); }&&
 	requires { !std::is_same_v<Clock, std::chrono::steady_clock>; }
-std::ostream& operator<<(std::ostream& os, const _SF_MESSAGE_A& msg);
+std::ostream& operator<<(std::ostream& os, const SCRIPTFORGE_MESSAGE_A& msg);
 
 export
-_SF_MESSAGE_TEM
+SCRIPTFORGE_MESSAGE_TEM
 &&
 std::same_as<Clock, std::chrono::steady_clock>
-std::ostream& operator<<(std::ostream& os, const _SF_MESSAGE_A& msg);
+std::ostream& operator<<(std::ostream& os, const SCRIPTFORGE_MESSAGE_A& msg);
 
 export using Message = BasicMessage<>;
-_SF_MSG_END
+SCRIPTFORGE_MSG_END
 
 template<typename T, typename Clock>
 class std::formatter<Scriptforge::Msg::BasicMessage<T, Clock>> {
@@ -148,34 +148,34 @@ constexpr auto std::formatter<Scriptforge::Msg::BasicMessage<T, Clock>>::parse(s
 }
 
 
-_SF_MSG_BEGIN
+SCRIPTFORGE_MSG_BEGIN
 
-_SF_MESSAGE_TEM
-_SF_MESSAGE BasicMessage(const T& msg, InformationLevel level, TimePoint tp) : m_msg(msg), m_level(level), m_time(tp) {}
+SCRIPTFORGE_MESSAGE_TEM
+SCRIPTFORGE_MESSAGE BasicMessage(const T& msg, InformationLevel level, TimePoint tp) : m_msg(msg), m_level(level), m_time(tp) {}
 
-_SF_MESSAGE_TEM
-_SF_MESSAGE BasicMessage(T&& msg, InformationLevel level, TimePoint tp) : m_msg(std::move(msg)), m_level(level), m_time(tp) {}
+SCRIPTFORGE_MESSAGE_TEM
+SCRIPTFORGE_MESSAGE BasicMessage(T&& msg, InformationLevel level, TimePoint tp) : m_msg(std::move(msg)), m_level(level), m_time(tp) {}
 
-_SF_MESSAGE_TEM
-const T& _SF_MESSAGE message() const noexcept {
+SCRIPTFORGE_MESSAGE_TEM
+const T& SCRIPTFORGE_MESSAGE message() const noexcept {
 	return m_msg;
 }
 
-_SF_MESSAGE_TEM
-InformationLevel _SF_MESSAGE level() const noexcept {
+SCRIPTFORGE_MESSAGE_TEM
+InformationLevel SCRIPTFORGE_MESSAGE level() const noexcept {
 	return m_level;
 }
 
-_SF_MESSAGE_TEM
-typename _SF_MESSAGE TimePoint _SF_MESSAGE time() const noexcept {
+SCRIPTFORGE_MESSAGE_TEM
+typename SCRIPTFORGE_MESSAGE TimePoint SCRIPTFORGE_MESSAGE time() const noexcept {
 	return m_time;
 }
 
-_SF_MESSAGE_TEM
+SCRIPTFORGE_MESSAGE_TEM
 &&
 	requires { Clock::to_time_t(std::declval<typename Clock::time_point>()); }&&
 	requires { !std::is_same_v<Clock, std::chrono::steady_clock>; }
-std::ostream& operator<<(std::ostream& os, const _SF_MESSAGE_A& msg) {
+std::ostream& operator<<(std::ostream& os, const SCRIPTFORGE_MESSAGE_A& msg) {
 	auto tp = msg.time();
 	auto zt = std::chrono::zoned_time{ std::chrono::current_zone(), tp };
 	auto local = zt.get_local_time();
@@ -196,13 +196,13 @@ std::ostream& operator<<(std::ostream& os, const _SF_MESSAGE_A& msg) {
 	return os;
 }
 
-_SF_MESSAGE_TEM
+SCRIPTFORGE_MESSAGE_TEM
 &&
 std::same_as<Clock, std::chrono::steady_clock>
-std::ostream& operator<<(std::ostream& os, const _SF_MESSAGE_A& msg) {
+std::ostream& operator<<(std::ostream& os, const SCRIPTFORGE_MESSAGE_A& msg) {
 	os << "[ " << msg.time().time_since_epoch().count()
 		<< "] [" << getInformationLevel(msg.level())
 		<< "] " << msg.message();
 	return os;
 }
-_SF_MSG_END
+SCRIPTFORGE_MSG_END

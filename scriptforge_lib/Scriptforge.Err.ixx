@@ -24,9 +24,9 @@ export module Scriptforge.Err;
 
 import Scriptforge.Msg;
 
-_SF_ERR_BEGIN
+SCRIPTFORGE_ERR_BEGIN
 
-_SF_ERROR_TEM_A
+SCRIPTFORGE_ERROR_TEM_A
 concept ErrorRequires = Scriptforge::Msg::MessageRequires<T, Clock>&&
 std::copyable<CodeT>;
 
@@ -48,40 +48,40 @@ private:
 export using Error = BasicError<>;
 
 export
-_SF_ERROR_TEM
+SCRIPTFORGE_ERROR_TEM
 	&&
 	requires { Clock::to_time_t(std::declval<typename Clock::time_point>()); }&&
 	requires { !std::is_same_v<Clock, std::chrono::steady_clock>; }
 std::ostream& operator<<(std::ostream& os, const BasicError<CodeT, T, Clock>& error);
 
 export
-_SF_ERROR_TEM
+SCRIPTFORGE_ERROR_TEM
 	&&
 	std::same_as<Clock, std::chrono::steady_clock>
 std::ostream& operator<<(std::ostream& os, const BasicMessage<T, Clock>& msg);
-_SF_ERR_END
+SCRIPTFORGE_ERR_END
 
-_SF_ERR_BEGIN
+SCRIPTFORGE_ERR_BEGIN
 
-_SF_ERROR_TEM
-_SF_ERROR BasicError(const CodeT& code, const T& msg, const Scriptforge::Msg::InformationLevel level, typename Clock::time_point tp)
+SCRIPTFORGE_ERROR_TEM
+SCRIPTFORGE_ERROR BasicError(const CodeT& code, const T& msg, const Scriptforge::Msg::InformationLevel level, typename Clock::time_point tp)
 	: Scriptforge::Msg::BasicMessage<T, Clock>(msg, level, tp), m_code(code) {}
 
-_SF_ERROR_TEM
-_SF_ERROR BasicError(CodeT&& code, T&& msg, const Scriptforge::Msg::InformationLevel level, typename Clock::time_point tp)
+SCRIPTFORGE_ERROR_TEM
+SCRIPTFORGE_ERROR BasicError(CodeT&& code, T&& msg, const Scriptforge::Msg::InformationLevel level, typename Clock::time_point tp)
 	: Scriptforge::Msg::BasicMessage<T, Clock>(std::move(msg), level, tp), m_code(std::move(code)) {}
 
-_SF_ERROR_TEM
-const T& _SF_ERROR what() const noexcept {
+SCRIPTFORGE_ERROR_TEM
+const T& SCRIPTFORGE_ERROR what() const noexcept {
 	return this->message();
 }
 
-_SF_ERROR_TEM
-const CodeT& _SF_ERROR code() const {
+SCRIPTFORGE_ERROR_TEM
+const CodeT& SCRIPTFORGE_ERROR code() const {
 	return m_code;
 }
 
-_SF_ERROR_TEM
+SCRIPTFORGE_ERROR_TEM
 	&&
 	requires { Clock::to_time_t(std::declval<typename Clock::time_point>()); }&&
 	requires { !std::is_same_v<Clock, std::chrono::steady_clock>; }
@@ -108,7 +108,7 @@ std::ostream& operator<<(std::ostream& os, const BasicError<CodeT, T, Clock>& er
 	return os;
 }
 
-_SF_ERROR_TEM
+SCRIPTFORGE_ERROR_TEM
 	&&
 	std::same_as<Clock, std::chrono::steady_clock>
 std::ostream& operator<<(std::ostream& os, const BasicMessage<T, Clock>& msg) {
@@ -118,4 +118,4 @@ std::ostream& operator<<(std::ostream& os, const BasicMessage<T, Clock>& msg) {
 		<< "] " << msg.message();
 	return os;
 }
-_SF_ERR_END
+SCRIPTFORGE_ERR_END

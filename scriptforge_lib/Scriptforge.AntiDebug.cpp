@@ -38,7 +38,7 @@ module Scriptforge.AntiDebug;
 import Scriptforge.AntiDebug.RandomDefine;
 import Scriptforge.Local;
 
-_SF_BEGIN
+SCRIPTFORGE_BEGIN
 namespace ADNS {
 #ifdef _MSC_VER
 #pragma warning(push)
@@ -229,4 +229,4 @@ namespace ADNS {
 #pragma warning(pop)
 #endif
 }
-_SF_END
+SCRIPTFORGE_END

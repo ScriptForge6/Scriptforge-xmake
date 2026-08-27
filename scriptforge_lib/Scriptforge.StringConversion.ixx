@@ -25,7 +25,7 @@ module;
 
 export module Scriptforge.StringConversion;
 
-_SF_STRINGCONVERSION_BEGIN
+SCRIPTFORGE_STRINGCONVERSION_BEGIN
 
 export template <typename T>
 concept is_basic_string = requires(T str) {
@@ -60,10 +60,10 @@ export template <class ToStr, class FromStr>
     requires is_basic_string<ToStr>&& is_basic_string<FromStr>
 ToStr str_convert(const FromStr& str);
 
-_SF_STRINGCONVERSION_END
+SCRIPTFORGE_STRINGCONVERSION_END
 
 
-_SF_STRINGCONVERSION_BEGIN
+SCRIPTFORGE_STRINGCONVERSION_BEGIN
 
 static_assert(sizeof(char) == sizeof(char8_t), "char and char8_t must be same size");
 static_assert(sizeof(wchar_t) == sizeof(char16_t) || sizeof(wchar_t) == sizeof(char32_t), "wchar_t must be 16 or 32 bits");
@@ -243,4 +243,4 @@ ToStr str_convert(const FromStr& str) {
     }
 }
 
-_SF_STRINGCONVERSION_END
+SCRIPTFORGE_STRINGCONVERSION_END

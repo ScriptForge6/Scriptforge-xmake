@@ -27,7 +27,7 @@ import Scriptforge.ErrCode;
 import Scriptforge.ErrCode.throwError;
 import Scriptforge.Local;
 
-_SF_BASE_BEGIN
+SCRIPTFORGE_BASE_BEGIN
 namespace CharSet {
     struct Base64Set {
         inline static constexpr std::array<char, 64> set = []() constexpr {
@@ -104,34 +104,34 @@ private:
 
 export using Base64 = BasicBase64<CharSet::Base64Set>;
 export using Base64Url = BasicBase64<CharSet::Base64UrlSet>;
-_SF_BASE_END
+SCRIPTFORGE_BASE_END
 
-_SF_BASE_BEGIN
+SCRIPTFORGE_BASE_BEGIN
 template<isBaseCharSet CharSet>
-_SF_BASE64 BasicBase64(std::string_view base, const Scriptforge::Local::Lang& lang)
+SCRIPTFORGE_BASE64 BasicBase64(std::string_view base, const Scriptforge::Local::Lang& lang)
     : m_base(base), m_lang(lang) {}
 
-_SF_BASE64_TEM
-_SF_BASE64 BasicBase64(const container& raw, const Scriptforge::Local::Lang& lang)
+SCRIPTFORGE_BASE64_TEM
+SCRIPTFORGE_BASE64 BasicBase64(const container& raw, const Scriptforge::Local::Lang& lang)
     : m_base(raw), m_lang(lang) {}
 
-_SF_BASE64_TEM
-void _SF_BASE64 set(std::string_view base) {
+SCRIPTFORGE_BASE64_TEM
+void SCRIPTFORGE_BASE64 set(std::string_view base) {
     m_base = base;
 }
 
-_SF_BASE64_TEM
-void _SF_BASE64 set(const container& raw) {
+SCRIPTFORGE_BASE64_TEM
+void SCRIPTFORGE_BASE64 set(const container& raw) {
     m_base = raw;
 }
 
-_SF_BASE64_TEM
-void _SF_BASE64 setLang(const Scriptforge::Local::Lang& lang) {
+SCRIPTFORGE_BASE64_TEM
+void SCRIPTFORGE_BASE64 setLang(const Scriptforge::Local::Lang& lang) {
     m_lang = lang;
 }
 
-_SF_BASE64_TEM
-std::string _SF_BASE64 encode() const {
+SCRIPTFORGE_BASE64_TEM
+std::string SCRIPTFORGE_BASE64 encode() const {
 
     if (std::holds_alternative<std::string>(m_base)) {
         return std::get<std::string>(m_base);
@@ -197,12 +197,12 @@ std::string _SF_BASE64 encode() const {
 }
 
 
-_SF_BASE64_TEM
-_SF_BASE64 container _SF_BASE64 decode() const {
+SCRIPTFORGE_BASE64_TEM
+SCRIPTFORGE_BASE64 container SCRIPTFORGE_BASE64 decode() const {
     if (std::holds_alternative<container>(m_base)) {
         return std::get<container>(m_base);
     }
 
 
 }
-_SF_BASE_END
+SCRIPTFORGE_BASE_END

@@ -1,85 +1,85 @@
-#ifndef SCRIPTFORGE_DEFINE_HPP
+SCRIPTFORGE#ifndef SCRIPTFORGE_DEFINE_HPP
 #define SCRIPTFORGE_DEFINE_HPP
 
 
-#define _SF_BEGIN namespace Scriptforge {
-#define _SF_END }
-#define _SF /*::*/Scriptforge::
+#define SCRIPTFORGE_BEGIN namespace Scriptforge {
+#define SCRIPTFORGE_END }
+#define SCRIPTFORGE /*::*/Scriptforge::
 
 
-#define _SF_ARGV_BEGIN _SF_BEGIN inline namespace Argv {
-#define _SF_ARGV_END   _SF_END }
+#define SCRIPTFORGE_ARGV_BEGIN SCRIPTFORGE_BEGIN inline namespace Argv {
+#define SCRIPTFORGE_ARGV_END   SCRIPTFORGE_END }
 
-#define _SF_ARGV _SF Argv::
-#define _SF_ARGVCLI _SF_ARGV BasicArgvCli<HashT>::
-#define _SF_ARGVCLI_TEM template<isHash HashT>
-
-
-#define _SF_BASE_BEGIN _SF_BEGIN inline namespace Base {
-#define _SF_BASE_END   _SF_END }
-
-#define _SF_BASE _SF Base::
-#define _SF_BASE64 _SF_BASE BasicBase64<CharSet>::
-#define  _SF_BASE64_TEM template<isBaseCharSet CharSet>
+#define SCRIPTFORGE_ARGV SCRIPTFORGE Argv::
+#define SCRIPTFORGE_ARGVCLI SCRIPTFORGE_ARGV BasicArgvCli<HashT>::
+#define SCRIPTFORGE_ARGVCLI_TEM template<isHash HashT>
 
 
-#define _SF_BUFFER_BEGIN _SF_BEGIN inline namespace Buffer {
-#define  _SF_BUFFER_END   _SF_END }
+#define SCRIPTFORGE_BASE_BEGIN SCRIPTFORGE_BEGIN inline namespace Base {
+#define SCRIPTFORGE_BASE_END   SCRIPTFORGE_END }
 
-#define _SF_BUFFER_LITERALS_BEGIN inline namespace BufferLiterals {
-#define _SF_BUFFER_LITERALS_END }
-
-#define _SF_BUFFER _SF Buffer::
-#define _SF_BYTEBUFFER_A _SF_BUFFER BasicByteBuffer<Alloc>
-#define _SF_BYTEBUFFER _SF_BUFFER BasicByteBuffer<Alloc>::
-#define _SF_BYTEBUFFER_TEM_BEGIN template <typename Alloc
-#define _SF_BYTEBUFFER_TEM_END >
-#define _SF_BYTEBUFFER_TEM _SF_BYTEBUFFER_TEM_BEGIN _SF_BYTEBUFFER_TEM_END
+#define SCRIPTFORGE_BASE SCRIPTFORGE Base::
+#define SCRIPTFORGE_BASE64 SCRIPTFORGE_BASE BasicBase64<CharSet>::
+#define  SCRIPTFORGE_BASE64_TEM template<isBaseCharSet CharSet>
 
 
-#define _SF_CODE_BEGIN _SF_BEGIN namespace Code {
-#define _SF_CODE_END _SF_END } 
-#define _SF_CODE _SF Code::
+#define SCRIPTFORGE_BUFFER_BEGIN SCRIPTFORGE_BEGIN inline namespace Buffer {
+#define  SCRIPTFORGE_BUFFER_END   SCRIPTFORGE_END }
+
+#define SCRIPTFORGE_BUFFER_LITERALS_BEGIN inline namespace BufferLiterals {
+#define SCRIPTFORGE_BUFFER_LITERALS_END }
+
+#define SCRIPTFORGE_BUFFER SCRIPTFORGE Buffer::
+#define SCRIPTFORGE_BYTEBUFFER_A SCRIPTFORGE_BUFFER BasicByteBuffer<Alloc>
+#define SCRIPTFORGE_BYTEBUFFER SCRIPTFORGE_BUFFER BasicByteBuffer<Alloc>::
+#define SCRIPTFORGE_BYTEBUFFER_TEM_BEGIN template <typename Alloc
+#define SCRIPTFORGE_BYTEBUFFER_TEM_END >
+#define SCRIPTFORGE_BYTEBUFFER_TEM SCRIPTFORGE_BYTEBUFFER_TEM_BEGIN SCRIPTFORGE_BYTEBUFFER_TEM_END
 
 
-#define _SF_CONCEPT_BEGIN _SF_BEGIN namespace Concept {
-#define _SF_CONCEPT_END _SF_END } 
-#define _SF_CONCEPT _SF Concept::
+#define SCRIPTFORGE_CODE_BEGIN SCRIPTFORGE_BEGIN namespace Code {
+#define SCRIPTFORGE_CODE_END SCRIPTFORGE_END } 
+#define SCRIPTFORGE_CODE SCRIPTFORGE Code::
 
 
-#define _SF_ERR_BEGIN _SF_BEGIN inline namespace Err {
-#define _SF_ERR_END   _SF_END }
+#define SCRIPTFORGE_CONCEPT_BEGIN SCRIPTFORGE_BEGIN namespace Concept {
+#define SCRIPTFORGE_CONCEPT_END SCRIPTFORGE_END } 
+#define SCRIPTFORGE_CONCEPT SCRIPTFORGE Concept::
 
-#define _SF_ERR _SF Err::
-#define _SF_ERROR_A _SF_ERR BasicError<CodeT, T, Clock>
-#define _SF_ERROR _SF_ERR BasicError<CodeT, T, Clock>::
-#define _SF_ERROR_TEM_A template <typename CodeT, typename T, typename Clock>
-#define _SF_ERROR_TEM _SF_ERROR_TEM_A \
+
+#define SCRIPTFORGE_ERR_BEGIN SCRIPTFORGE_BEGIN inline namespace Err {
+#define SCRIPTFORGE_ERR_END   SCRIPTFORGE_END }
+
+#define SCRIPTFORGE_ERR SCRIPTFORGE Err::
+#define SCRIPTFORGE_ERROR_A SCRIPTFORGE_ERR BasicError<CodeT, T, Clock>
+#define SCRIPTFORGE_ERROR SCRIPTFORGE_ERR BasicError<CodeT, T, Clock>::
+#define SCRIPTFORGE_ERROR_TEM_A template <typename CodeT, typename T, typename Clock>
+#define SCRIPTFORGE_ERROR_TEM SCRIPTFORGE_ERROR_TEM_A \
                           requires ErrorRequires<CodeT, T, Clock>
 
 
-#define _SF_MSG_BEGIN _SF_BEGIN inline namespace Msg {
-#define _SF_MSG_END   _SF_END }
+#define SCRIPTFORGE_MSG_BEGIN SCRIPTFORGE_BEGIN inline namespace Msg {
+#define SCRIPTFORGE_MSG_END   SCRIPTFORGE_END }
 
-#define _SF_MSG _SF Msg::
-#define _SF_MESSAGE_A _SF_MSG BasicMessage<T, Clock>
-#define _SF_MESSAGE _SF_MSG BasicMessage<T, Clock>::
-#define _SF_MESSAGE_TEM_A template <typename T, typename Clock>
-#define _SF_MESSAGE_TEM _SF_MESSAGE_TEM_A \
+#define SCRIPTFORGE_MSG SCRIPTFORGE Msg::
+#define SCRIPTFORGE_MESSAGE_A SCRIPTFORGE_MSG BasicMessage<T, Clock>
+#define SCRIPTFORGE_MESSAGE SCRIPTFORGE_MSG BasicMessage<T, Clock>::
+#define SCRIPTFORGE_MESSAGE_TEM_A template <typename T, typename Clock>
+#define SCRIPTFORGE_MESSAGE_TEM SCRIPTFORGE_MESSAGE_TEM_A \
                           requires MessageRequires<T, Clock>
 
 
-#define _SF_STRINGCONVERSION_BEGIN _SF_BEGIN inline namespace StringConversion {
-#define _SF_STRINGCONVERSION_END _SF_END }
-#define _SF_STRINGCONVERSION _SF StringConversion::
+#define SCRIPTFORGE_STRINGCONVERSION_BEGIN SCRIPTFORGE_BEGIN inline namespace StringConversion {
+#define SCRIPTFORGE_STRINGCONVERSION_END SCRIPTFORGE_END }
+#define SCRIPTFORGE_STRINGCONVERSION SCRIPTFORGE StringConversion::
 
 
-#define _SF_THREADERROR ThreadError<Async>::
-#define _SF_THREADERROR_TEM template<bool Async>
+#define SCRIPTFORGE_THREADERROR ThreadError<Async>::
+#define SCRIPTFORGE_THREADERROR_TEM template<bool Async>
 
 
-#define _SF_THROW_BEGIN _SF_BEGIN inline namespace Throw {
-#define _SF_THROW_END _SF_END }
-#define _SF_THROW _SF Throw::
+#define SCRIPTFORGE_THROW_BEGIN SCRIPTFORGE_BEGIN inline namespace Throw {
+#define SCRIPTFORGE_THROW_END SCRIPTFORGE_END }
+#define SCRIPTFORGE_THROW SCRIPTFORGE Throw::
 
 #endif

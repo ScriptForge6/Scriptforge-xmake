@@ -34,17 +34,17 @@ using json = nlohmann::json;
 namespace Scriptforge {
     inline namespace Local {
 
-        [[noreturn]] void throwErrWithoutJson(_SF_CODE ErrCode code, std::string_view func, std::string_view message);
-        [[noreturn]] void throwFileNotFoundError(const fs::path& p, _SF_CODE Language lang, std::string_view func);
-        [[noreturn]] void throwInvalidFileError(const fs::path& p, _SF_CODE Language lang, std::string_view func);
+        [[noreturn]] void throwErrWithoutJson(SCRIPTFORGE_CODE ErrCode code, std::string_view func, std::string_view message);
+        [[noreturn]] void throwFileNotFoundError(const fs::path& p, SCRIPTFORGE_CODE Language lang, std::string_view func);
+        [[noreturn]] void throwInvalidFileError(const fs::path& p, SCRIPTFORGE_CODE Language lang, std::string_view func);
 
 
         export class Lang {
         public:
-            Lang(_SF_CODE Language lang = _SF_CODE Language::Neutral, fs::path p = { "./lang" });
+            Lang(SCRIPTFORGE_CODE Language lang = SCRIPTFORGE_CODE Language::Neutral, fs::path p = { "./lang" });
             void reload();
-            void setLocale(const _SF_CODE Language lang);
-            _SF_CODE Language getLanguageCode() const;
+            void setLocale(const SCRIPTFORGE_CODE Language lang);
+            SCRIPTFORGE_CODE Language getLanguageCode() const;
             std::string getLanguageNameISO639_1() const;
             std::string getLanguageName() const;
             fs::path getLangPath() const;
@@ -58,15 +58,15 @@ namespace Scriptforge {
             bool isLoaded() const;
             json operator[](std::string_view key);
         private:
-            void loadLanguageFile(_SF_CODE Language lang, fs::path path);
-            void LanguageIsLegal(_SF_CODE Language lang) const;
+            void loadLanguageFile(SCRIPTFORGE_CODE Language lang, fs::path path);
+            void LanguageIsLegal(SCRIPTFORGE_CODE Language lang) const;
             void pathIsLegal(const fs::path& path) const;
-            _SF_CODE Language m_lang;
+            SCRIPTFORGE_CODE Language m_lang;
             json j;
             fs::path m_path;
         };
 
-        export std::vector<_SF_CODE Language> getAvailableLanguages(const fs::path& path = { "./lang" });
+        export std::vector<SCRIPTFORGE_CODE Language> getAvailableLanguages(const fs::path& path = { "./lang" });
 
     }
 }
@@ -74,28 +74,28 @@ namespace Scriptforge {
 namespace Scriptforge {
     inline namespace Local {
 
-        [[noreturn]] void throwErrWithoutJson(_SF_CODE ErrCode code, std::string_view func, std::string_view message) {
-            throw Scriptforge::BasicError<_SF_CODE ErrCode>{ code, std::string(func) + ": " + std::string(message) };
+        [[noreturn]] void throwErrWithoutJson(SCRIPTFORGE_CODE ErrCode code, std::string_view func, std::string_view message) {
+            throw Scriptforge::BasicError<SCRIPTFORGE_CODE ErrCode>{ code, std::string(func) + ": " + std::string(message) };
         }
-        [[noreturn]] void throwFileNotFoundError(const fs::path& p, _SF_CODE Language lang, std::string_view func) {
-            if (lang == _SF_CODE Language::Chinese) {
-                throwErrWithoutJson(_SF_CODE ErrCode::LocalLanguageFileNotFound, func, "指定的语言文件不存在: " + p.string());
+        [[noreturn]] void throwFileNotFoundError(const fs::path& p, SCRIPTFORGE_CODE Language lang, std::string_view func) {
+            if (lang == SCRIPTFORGE_CODE Language::Chinese) {
+                throwErrWithoutJson(SCRIPTFORGE_CODE ErrCode::LocalLanguageFileNotFound, func, "指定的语言文件不存在: " + p.string());
             }
             else {
-                throwErrWithoutJson(_SF_CODE ErrCode::LocalLanguageFileNotFound, func, "The specified language file does not exist: " + p.string());
+                throwErrWithoutJson(SCRIPTFORGE_CODE ErrCode::LocalLanguageFileNotFound, func, "The specified language file does not exist: " + p.string());
             }
         }
-        [[noreturn]] void throwInvalidFileError(const fs::path& p, _SF_CODE Language lang, std::string_view func) {
-            if (lang == _SF_CODE Language::Chinese) {
-                throwErrWithoutJson(_SF_CODE ErrCode::LocalInvalidLanguageFile, func, "指定的语言文件无效: " + p.string());
+        [[noreturn]] void throwInvalidFileError(const fs::path& p, SCRIPTFORGE_CODE Language lang, std::string_view func) {
+            if (lang == SCRIPTFORGE_CODE Language::Chinese) {
+                throwErrWithoutJson(SCRIPTFORGE_CODE ErrCode::LocalInvalidLanguageFile, func, "指定的语言文件无效: " + p.string());
             }
             else {
-                throwErrWithoutJson(_SF_CODE ErrCode::LocalInvalidLanguageFile, func, "The specified language file is invalid: " + p.string());
+                throwErrWithoutJson(SCRIPTFORGE_CODE ErrCode::LocalInvalidLanguageFile, func, "The specified language file is invalid: " + p.string());
             }
         }
 
 
-        Lang::Lang(_SF_CODE Language lang, fs::path p) {
+        Lang::Lang(SCRIPTFORGE_CODE Language lang, fs::path p) {
             loadLanguageFile(lang, p);
         }
 
@@ -104,25 +104,25 @@ namespace Scriptforge {
         }
 
 
-        void Lang::setLocale(const _SF_CODE Language lang) {
+        void Lang::setLocale(const SCRIPTFORGE_CODE Language lang) {
             m_lang = lang;
             loadLanguageFile(lang, m_path);
         }
 
 
-        _SF_CODE Language Lang::getLanguageCode() const {
+        SCRIPTFORGE_CODE Language Lang::getLanguageCode() const {
             return m_lang;
         }
 
         std::string Lang::getLanguageNameISO639_1() const {
-            if (m_lang == _SF_CODE Language::Neutral) {
-                return _SF_CODE ENUM_TO_ISO639_1().at(_SF_CODE neutral);
+            if (m_lang == SCRIPTFORGE_CODE Language::Neutral) {
+                return SCRIPTFORGE_CODE ENUM_TO_ISO639_1().at(SCRIPTFORGE_CODE neutral);
             }
-            return _SF_CODE ENUM_TO_ISO639_1().at(m_lang);
+            return SCRIPTFORGE_CODE ENUM_TO_ISO639_1().at(m_lang);
         }
         
         std::string Lang::getLanguageName() const {
-            return j.value("language_name", _SF_CODE ENUM_TO_ISO639_1().at(m_lang));
+            return j.value("language_name", SCRIPTFORGE_CODE ENUM_TO_ISO639_1().at(m_lang));
         }
 
 
@@ -182,7 +182,7 @@ namespace Scriptforge {
 
 
 
-        void Lang::loadLanguageFile(_SF_CODE Language lang, fs::path path) {
+        void Lang::loadLanguageFile(SCRIPTFORGE_CODE Language lang, fs::path path) {
 
             LanguageIsLegal(lang);
             m_lang = lang;
@@ -209,9 +209,9 @@ namespace Scriptforge {
             jsoninput.close();
         }
 
-        void Lang::LanguageIsLegal(_SF_CODE Language lang) const {
-            if (lang == _SF_CODE Language::Invariant) {
-                throwErrWithoutJson(_SF_CODE ErrCode::LocalInvalidLanguageCode, __func__, "Invariant is not valid language codes for loading language files.");
+        void Lang::LanguageIsLegal(SCRIPTFORGE_CODE Language lang) const {
+            if (lang == SCRIPTFORGE_CODE Language::Invariant) {
+                throwErrWithoutJson(SCRIPTFORGE_CODE ErrCode::LocalInvalidLanguageCode, __func__, "Invariant is not valid language codes for loading language files.");
             }
         }
 
@@ -225,13 +225,13 @@ namespace Scriptforge {
         }
 
 
-        std::vector<_SF_CODE Language> getAvailableLanguages(const fs::path& path) {
+        std::vector<SCRIPTFORGE_CODE Language> getAvailableLanguages(const fs::path& path) {
 
             if (!fs::exists(path)) {
-                throwFileNotFoundError(path, _SF_CODE Language::Neutral, __func__);
+                throwFileNotFoundError(path, SCRIPTFORGE_CODE Language::Neutral, __func__);
             }
 
-            std::vector<_SF_CODE Language> languages;
+            std::vector<SCRIPTFORGE_CODE Language> languages;
 
             for (const auto& entry : fs::directory_iterator(path)) {
                 if (entry.path().extension() != ".json")
@@ -241,8 +241,8 @@ namespace Scriptforge {
                 std::string iso = entry.path().stem().string();
 
                 // 自动转成 Language 枚举
-                auto it = _SF_CODE ISO639_1_TO_ENUM.find(iso);
-                if (it != _SF_CODE ISO639_1_TO_ENUM.end()) {
+                auto it = SCRIPTFORGE_CODE ISO639_1_TO_ENUM.find(iso);
+                if (it != SCRIPTFORGE_CODE ISO639_1_TO_ENUM.end()) {
                     languages.push_back(it->second);
                 }
             }

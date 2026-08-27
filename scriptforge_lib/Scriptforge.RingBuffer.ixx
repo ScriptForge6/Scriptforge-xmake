@@ -98,7 +98,7 @@ namespace Scriptforge {
 		RingBuffer<T, Alloc>::RingBuffer(const size_type capacity, const Scriptforge::Lang lang)
 			:m_lang(lang) {
 			if (capacity == 0) {
-				Scriptforge::ErrCode::throwError(_SF_CODE RingBufferCapacityBeZero, __func__, m_lang);
+				Scriptforge::ErrCode::throwError(SCRIPTFORGE_CODE RingBufferCapacityBeZero, __func__, m_lang);
 			}
 		}
 

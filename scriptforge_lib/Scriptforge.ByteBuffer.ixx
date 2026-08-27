@@ -21,11 +21,13 @@ module;
 #include "Scriptforge.Define.hpp"
 #include "Scriptforge.Pch.hpp"
 
+#include <utf8.h>
+
 export module Scriptforge.ByteBuffer;
 
 import Scriptforge.StringConversion;
 
-_SF_BUFFER_BEGIN
+SCRIPTFORGE_BUFFER_BEGIN
 
 export namespace Hex {
 	struct HexUppercaseSeparate {
@@ -105,8 +107,7 @@ concept isHex = requires {
 
 export namespace Bin {
 	struct Bin {
-		inline static constexpr char bin = '.';
-		inline static constexpr std::optional<char> separate = ' ';
+		inline static constexpr char32_t bin = '.';
 	};
 }
 
@@ -122,8 +123,7 @@ export namespace Bin {
  */
 template<typename T>
 concept isBin = requires {
-	{ T::bin } -> std::convertible_to<char>;
-	{ T::separate } -> std::convertible_to<std::optional<char>>;
+	{ T::bin } -> std::convertible_to<char32_t>;
 };
 
 export
@@ -145,8 +145,8 @@ public:
 	using const_reverse_iterator = container::const_reverse_iterator;
 
 	BasicByteBuffer() = default;
-	BasicByteBuffer(const _SF_BYTEBUFFER_A&) = default;
-	BasicByteBuffer(_SF_BYTEBUFFER_A&&) = default;
+	BasicByteBuffer(const SCRIPTFORGE_BYTEBUFFER_A&) = default;
+	BasicByteBuffer(SCRIPTFORGE_BYTEBUFFER_A&&) = default;
 	BasicByteBuffer(size_type n);
 	BasicByteBuffer(size_type n, const value_type& value);
 	template<class InputIt>
@@ -192,15 +192,15 @@ public:
 	const_reverse_iterator crend() const noexcept;
 
 	template<std::unsigned_integral T, bool le = true>
-	_SF_BYTEBUFFER_A& push_back(T value);
+	SCRIPTFORGE_BYTEBUFFER_A& push_back(T value);
 	template<std::unsigned_integral T>
-	_SF_BYTEBUFFER_A& push_back(T value, bool le);
-	template<_SF_STRINGCONVERSION is_basic_string T>
-	_SF_BYTEBUFFER_A& push_back(T value);
+	SCRIPTFORGE_BYTEBUFFER_A& push_back(T value, bool le);
+	template<SCRIPTFORGE_STRINGCONVERSION is_basic_string T>
+	SCRIPTFORGE_BYTEBUFFER_A& push_back(T value);
 	template<std::unsigned_integral T>
-	_SF_BYTEBUFFER_A& push_back_le(T value);
+	SCRIPTFORGE_BYTEBUFFER_A& push_back_le(T value);
 	template<std::unsigned_integral T>
-	_SF_BYTEBUFFER_A& push_back_be(T value);
+	SCRIPTFORGE_BYTEBUFFER_A& push_back_be(T value);
 	void pop_back();
 
 	template<class... Args>
@@ -219,16 +219,16 @@ public:
 	iterator erase(iterator pos);
 	iterator erase(iterator first, iterator last);
 
-	_SF_BYTEBUFFER_A& operator=(const _SF_BYTEBUFFER_A& other);
-	_SF_BYTEBUFFER_A& operator=(_SF_BYTEBUFFER_A&& other) noexcept;
-	_SF_BYTEBUFFER_A& operator=(std::initializer_list<value_type> ilist);
+	SCRIPTFORGE_BYTEBUFFER_A& operator=(const SCRIPTFORGE_BYTEBUFFER_A& other);
+	SCRIPTFORGE_BYTEBUFFER_A& operator=(SCRIPTFORGE_BYTEBUFFER_A&& other) noexcept;
+	SCRIPTFORGE_BYTEBUFFER_A& operator=(std::initializer_list<value_type> ilist);
 
 	void assign(size_type n, const value_type& val);
 	template<class InputIt>
 	void assign(InputIt first, InputIt last);
 	void assign(std::initializer_list<value_type> ilist);
 
-	void swap(_SF_BYTEBUFFER_A& other) noexcept;
+	void swap(SCRIPTFORGE_BYTEBUFFER_A& other) noexcept;
 
 	const container& underlying() const;
 	std::string to_string() const;
@@ -240,212 +240,212 @@ public:
 
 	operator container() const;
 
-	friend auto operator<=>(const _SF_BYTEBUFFER_A& lhs, const _SF_BYTEBUFFER_A& rhs);
+	friend auto operator<=>(const SCRIPTFORGE_BYTEBUFFER_A& lhs, const SCRIPTFORGE_BYTEBUFFER_A& rhs);
 
 private:
 	container m_buf;
 };
 
 export
-_SF_BYTEBUFFER_TEM
-auto operator<=>(const _SF_BYTEBUFFER_A& lhs, const _SF_BYTEBUFFER_A& rhs);
+SCRIPTFORGE_BYTEBUFFER_TEM
+auto operator<=>(const SCRIPTFORGE_BYTEBUFFER_A& lhs, const SCRIPTFORGE_BYTEBUFFER_A& rhs);
 
 export
-_SF_BYTEBUFFER_TEM_BEGIN, class U _SF_BYTEBUFFER_TEM_END
-constexpr auto erase(_SF_BYTEBUFFER_A& c, const U& value);
+SCRIPTFORGE_BYTEBUFFER_TEM_BEGIN, class U SCRIPTFORGE_BYTEBUFFER_TEM_END
+constexpr auto erase(SCRIPTFORGE_BYTEBUFFER_A& c, const U& value);
 
 export
-_SF_BYTEBUFFER_TEM_BEGIN, class Pred _SF_BYTEBUFFER_TEM_END
-constexpr auto erase_if(_SF_BYTEBUFFER_A& c, Pred pred);
+SCRIPTFORGE_BYTEBUFFER_TEM_BEGIN, class Pred SCRIPTFORGE_BYTEBUFFER_TEM_END
+constexpr auto erase_if(SCRIPTFORGE_BYTEBUFFER_A& c, Pred pred);
 
 export using ByteBuffer = BasicByteBuffer<>;
 
-_SF_BUFFER_LITERALS_BEGIN
+SCRIPTFORGE_BUFFER_LITERALS_BEGIN
 
 export ByteBuffer operator""_sf_bb(const char* c, std::size_t n);
 
-_SF_BUFFER_LITERALS_END
+SCRIPTFORGE_BUFFER_LITERALS_END
 
-_SF_BUFFER_END
+SCRIPTFORGE_BUFFER_END
 
 
-_SF_BUFFER_BEGIN
+SCRIPTFORGE_BUFFER_BEGIN
 
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER BasicByteBuffer(size_type n)
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER BasicByteBuffer(size_type n)
 	: m_buf(n) {}
 
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER BasicByteBuffer(size_type n, const value_type& value)
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER BasicByteBuffer(size_type n, const value_type& value)
 	: m_buf(n, value) {}
 
-_SF_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER_TEM
 template<class InputIt>
-_SF_BYTEBUFFER BasicByteBuffer(InputIt first, InputIt last)
+SCRIPTFORGE_BYTEBUFFER BasicByteBuffer(InputIt first, InputIt last)
 	: m_buf(first, last) {}
 
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER BasicByteBuffer(value_type byte)
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER BasicByteBuffer(value_type byte)
 	: m_buf(1, byte) {}
 
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER BasicByteBuffer(std::span<const value_type> init)
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER BasicByteBuffer(std::span<const value_type> init)
 	: m_buf(init.begin(), init.end()) {}
 
 
-_SF_BYTEBUFFER_TEM
-[[nodiscard]] typename _SF_BYTEBUFFER size_type _SF_BYTEBUFFER max_size() const noexcept {
+SCRIPTFORGE_BYTEBUFFER_TEM
+[[nodiscard]] typename SCRIPTFORGE_BYTEBUFFER size_type SCRIPTFORGE_BYTEBUFFER max_size() const noexcept {
 	return m_buf.max_size();
 }
 
-_SF_BYTEBUFFER_TEM
-[[nodiscard]] typename _SF_BYTEBUFFER size_type _SF_BYTEBUFFER size() const noexcept {
+SCRIPTFORGE_BYTEBUFFER_TEM
+[[nodiscard]] typename SCRIPTFORGE_BYTEBUFFER size_type SCRIPTFORGE_BYTEBUFFER size() const noexcept {
 	return m_buf.size();
 }
 
-_SF_BYTEBUFFER_TEM
-[[nodiscard]] bool _SF_BYTEBUFFER empty() const noexcept {
+SCRIPTFORGE_BYTEBUFFER_TEM
+[[nodiscard]] bool SCRIPTFORGE_BYTEBUFFER empty() const noexcept {
 	return m_buf.empty();
 }
 
-_SF_BYTEBUFFER_TEM
-void _SF_BYTEBUFFER reserve(size_type cap) {
+SCRIPTFORGE_BYTEBUFFER_TEM
+void SCRIPTFORGE_BYTEBUFFER reserve(size_type cap) {
 	m_buf.reserve(cap);
 }
 
-_SF_BYTEBUFFER_TEM
-void _SF_BYTEBUFFER resize(size_type count) {
+SCRIPTFORGE_BYTEBUFFER_TEM
+void SCRIPTFORGE_BYTEBUFFER resize(size_type count) {
 	m_buf.resize(count);
 }
 
-_SF_BYTEBUFFER_TEM
-void _SF_BYTEBUFFER resize(size_type count, const value_type& value) {
+SCRIPTFORGE_BYTEBUFFER_TEM
+void SCRIPTFORGE_BYTEBUFFER resize(size_type count, const value_type& value) {
 	m_buf.resize(count, value);
 }
 
-_SF_BYTEBUFFER_TEM
-[[nodiscard]] typename _SF_BYTEBUFFER size_type _SF_BYTEBUFFER capacity() const noexcept {
+SCRIPTFORGE_BYTEBUFFER_TEM
+[[nodiscard]] typename SCRIPTFORGE_BYTEBUFFER size_type SCRIPTFORGE_BYTEBUFFER capacity() const noexcept {
 	return m_buf.capacity();
 }
 
-_SF_BYTEBUFFER_TEM
-void _SF_BYTEBUFFER clear() {
+SCRIPTFORGE_BYTEBUFFER_TEM
+void SCRIPTFORGE_BYTEBUFFER clear() {
 	m_buf.clear();
 }
 
-_SF_BYTEBUFFER_TEM
-void _SF_BYTEBUFFER shrink_to_fit() {
+SCRIPTFORGE_BYTEBUFFER_TEM
+void SCRIPTFORGE_BYTEBUFFER shrink_to_fit() {
 	m_buf.shrink_to_fit();
 }
 
 
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER reference _SF_BYTEBUFFER operator[](size_type pos) {
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER reference SCRIPTFORGE_BYTEBUFFER operator[](size_type pos) {
 	return m_buf[pos];
 }
 
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER const_reference _SF_BYTEBUFFER operator[](size_type pos) const {
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER const_reference SCRIPTFORGE_BYTEBUFFER operator[](size_type pos) const {
 	return m_buf[pos];
 }
 
 
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER reference _SF_BYTEBUFFER at(size_type pos) {
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER reference SCRIPTFORGE_BYTEBUFFER at(size_type pos) {
 	return m_buf.at(pos);
 }
 
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER const_reference _SF_BYTEBUFFER at(size_type pos) const {
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER const_reference SCRIPTFORGE_BYTEBUFFER at(size_type pos) const {
 	return m_buf.at(pos);
 }
 
 
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER reference _SF_BYTEBUFFER front() {
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER reference SCRIPTFORGE_BYTEBUFFER front() {
 	return m_buf.front();
 }
 
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER const_reference _SF_BYTEBUFFER front() const {
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER const_reference SCRIPTFORGE_BYTEBUFFER front() const {
 	return m_buf.front();
 }
 
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER reference _SF_BYTEBUFFER back() {
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER reference SCRIPTFORGE_BYTEBUFFER back() {
 	return m_buf.back();
 }
 
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER const_reference _SF_BYTEBUFFER back() const {
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER const_reference SCRIPTFORGE_BYTEBUFFER back() const {
 	return m_buf.back();
 }
 
 
-_SF_BYTEBUFFER_TEM
-[[nodiscard]] typename _SF_BYTEBUFFER pointer _SF_BYTEBUFFER data() noexcept {
+SCRIPTFORGE_BYTEBUFFER_TEM
+[[nodiscard]] typename SCRIPTFORGE_BYTEBUFFER pointer SCRIPTFORGE_BYTEBUFFER data() noexcept {
 	return m_buf.data();
 }
 
-_SF_BYTEBUFFER_TEM
-[[nodiscard]] typename _SF_BYTEBUFFER const_pointer _SF_BYTEBUFFER data() const noexcept {
+SCRIPTFORGE_BYTEBUFFER_TEM
+[[nodiscard]] typename SCRIPTFORGE_BYTEBUFFER const_pointer SCRIPTFORGE_BYTEBUFFER data() const noexcept {
 	return m_buf.data();
 }
 
 
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER iterator _SF_BYTEBUFFER begin() noexcept {
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER iterator SCRIPTFORGE_BYTEBUFFER begin() noexcept {
 	return m_buf.begin();
 }
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER iterator _SF_BYTEBUFFER end() noexcept {
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER iterator SCRIPTFORGE_BYTEBUFFER end() noexcept {
 	return m_buf.end();
 }
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER reverse_iterator _SF_BYTEBUFFER rbegin() noexcept {
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER reverse_iterator SCRIPTFORGE_BYTEBUFFER rbegin() noexcept {
 	return m_buf.rbegin();
 }
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER reverse_iterator _SF_BYTEBUFFER rend() noexcept {
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER reverse_iterator SCRIPTFORGE_BYTEBUFFER rend() noexcept {
 	return m_buf.rend();
 }
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER const_iterator _SF_BYTEBUFFER begin() const noexcept {
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER const_iterator SCRIPTFORGE_BYTEBUFFER begin() const noexcept {
 	return m_buf.cbegin();
 }
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER const_iterator _SF_BYTEBUFFER end() const noexcept {
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER const_iterator SCRIPTFORGE_BYTEBUFFER end() const noexcept {
 	return m_buf.cend();
 }
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER const_reverse_iterator _SF_BYTEBUFFER rbegin() const noexcept {
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER const_reverse_iterator SCRIPTFORGE_BYTEBUFFER rbegin() const noexcept {
 	return m_buf.crbegin();
 }
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER const_reverse_iterator _SF_BYTEBUFFER rend() const noexcept {
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER const_reverse_iterator SCRIPTFORGE_BYTEBUFFER rend() const noexcept {
 	return m_buf.crend();
 }
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER const_iterator _SF_BYTEBUFFER cbegin() const noexcept {
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER const_iterator SCRIPTFORGE_BYTEBUFFER cbegin() const noexcept {
 	return m_buf.cbegin();
 }
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER const_iterator _SF_BYTEBUFFER cend() const noexcept {
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER const_iterator SCRIPTFORGE_BYTEBUFFER cend() const noexcept {
 	return m_buf.cend();
 }
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER const_reverse_iterator _SF_BYTEBUFFER crbegin() const noexcept {
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER const_reverse_iterator SCRIPTFORGE_BYTEBUFFER crbegin() const noexcept {
 	return m_buf.crbegin();
 }
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER const_reverse_iterator _SF_BYTEBUFFER crend() const noexcept {
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER const_reverse_iterator SCRIPTFORGE_BYTEBUFFER crend() const noexcept {
 	return m_buf.crend();
 }
 
 
-_SF_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER_TEM
 template<std::unsigned_integral T, bool le>
-auto _SF_BYTEBUFFER push_back(T value) -> _SF_BYTEBUFFER_A& {
+auto SCRIPTFORGE_BYTEBUFFER push_back(T value) -> SCRIPTFORGE_BYTEBUFFER_A& {
 	constexpr size_t N = sizeof(T);
 	for (size_t i = 0; i < N; i++) {
 		uint8_t byte;
@@ -460,9 +460,9 @@ auto _SF_BYTEBUFFER push_back(T value) -> _SF_BYTEBUFFER_A& {
 	return *this;
 }
 
-_SF_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER_TEM
 template<std::unsigned_integral T>
-auto _SF_BYTEBUFFER push_back(T value, bool le) -> _SF_BYTEBUFFER_A& {
+auto SCRIPTFORGE_BYTEBUFFER push_back(T value, bool le) -> SCRIPTFORGE_BYTEBUFFER_A& {
 	if (le) {
 		return push_back_le<T>(value);
 	}
@@ -471,111 +471,111 @@ auto _SF_BYTEBUFFER push_back(T value, bool le) -> _SF_BYTEBUFFER_A& {
 	}
 }
 
-_SF_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER_TEM
 template<std::unsigned_integral T>
-auto _SF_BYTEBUFFER push_back_le(T value) -> _SF_BYTEBUFFER_A& {
+auto SCRIPTFORGE_BYTEBUFFER push_back_le(T value) -> SCRIPTFORGE_BYTEBUFFER_A& {
 	return push_back<T, true>(value);
 }
 
-_SF_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER_TEM
 template<std::unsigned_integral T>
-auto _SF_BYTEBUFFER push_back_be(T value) -> _SF_BYTEBUFFER_A& {
+auto SCRIPTFORGE_BYTEBUFFER push_back_be(T value) -> SCRIPTFORGE_BYTEBUFFER_A& {
 	return push_back<T, false>(value);
 }
 
-_SF_BYTEBUFFER_TEM
-void _SF_BYTEBUFFER pop_back() {
+SCRIPTFORGE_BYTEBUFFER_TEM
+void SCRIPTFORGE_BYTEBUFFER pop_back() {
 	m_buf.pop_back();
 }
 
-_SF_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER_TEM
 template<class... Args>
-_SF_BYTEBUFFER iterator _SF_BYTEBUFFER emplace(iterator pos, Args&&... args) {
+SCRIPTFORGE_BYTEBUFFER iterator SCRIPTFORGE_BYTEBUFFER emplace(iterator pos, Args&&... args) {
 	return m_buf.emplace(pos, std::forward<Args>(args)...);
 }
 
-_SF_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER_TEM
 template<class... Args>
-_SF_BYTEBUFFER reference _SF_BYTEBUFFER emplace_back(Args&&... args) {
+SCRIPTFORGE_BYTEBUFFER reference SCRIPTFORGE_BYTEBUFFER emplace_back(Args&&... args) {
 	return m_buf.emplace_back(std::forward<Args>(args)...);
 }
 
 
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER iterator _SF_BYTEBUFFER insert(const_iterator pos, const value_type& value) {
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER iterator SCRIPTFORGE_BYTEBUFFER insert(const_iterator pos, const value_type& value) {
 	return m_buf.insert(pos, value);
 }
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER iterator _SF_BYTEBUFFER insert(const_iterator pos, value_type&& value) {
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER iterator SCRIPTFORGE_BYTEBUFFER insert(const_iterator pos, value_type&& value) {
 	return m_buf.insert(pos, value);
 }
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER iterator _SF_BYTEBUFFER insert(const_iterator pos, size_type count, const value_type& value) {
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER iterator SCRIPTFORGE_BYTEBUFFER insert(const_iterator pos, size_type count, const value_type& value) {
 	return m_buf.insert(pos, count, value);
 }
-_SF_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER_TEM
 template <class InputIt>
-_SF_BYTEBUFFER iterator _SF_BYTEBUFFER insert(const_iterator pos, InputIt first, InputIt last) {
+SCRIPTFORGE_BYTEBUFFER iterator SCRIPTFORGE_BYTEBUFFER insert(const_iterator pos, InputIt first, InputIt last) {
 	return m_buf.insert(pos, first, last);
 }
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER iterator _SF_BYTEBUFFER insert(const_iterator pos, std::initializer_list<value_type> ilist) {
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER iterator SCRIPTFORGE_BYTEBUFFER insert(const_iterator pos, std::initializer_list<value_type> ilist) {
 	return m_buf.insert(pos, ilist);
 }
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER iterator _SF_BYTEBUFFER insert(const_iterator pos, std::span<const value_type> list) {
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER iterator SCRIPTFORGE_BYTEBUFFER insert(const_iterator pos, std::span<const value_type> list) {
 	return m_buf.insert(pos, list.begin(), list.end());
 }
 
 
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER iterator _SF_BYTEBUFFER erase(iterator pos) {
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER iterator SCRIPTFORGE_BYTEBUFFER erase(iterator pos) {
 	return m_buf.erase(pos);
 }
 
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER iterator _SF_BYTEBUFFER erase(iterator first, iterator last) {
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER iterator SCRIPTFORGE_BYTEBUFFER erase(iterator first, iterator last) {
 	return m_buf.erase(first, last);
 }
 
 
-_SF_BYTEBUFFER_TEM
-void _SF_BYTEBUFFER assign(size_type n, const value_type& val) {
+SCRIPTFORGE_BYTEBUFFER_TEM
+void SCRIPTFORGE_BYTEBUFFER assign(size_type n, const value_type& val) {
 	m_buf.assign(n, val);
 }
-_SF_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER_TEM
 template <class InputIt>
-void _SF_BYTEBUFFER assign(InputIt first, InputIt last) {
+void SCRIPTFORGE_BYTEBUFFER assign(InputIt first, InputIt last) {
 	m_buf.assign(first, last);
 }
-_SF_BYTEBUFFER_TEM
-void _SF_BYTEBUFFER assign(std::initializer_list<value_type> ilist) {
+SCRIPTFORGE_BYTEBUFFER_TEM
+void SCRIPTFORGE_BYTEBUFFER assign(std::initializer_list<value_type> ilist) {
 	m_buf.assign(ilist);
 }
 
 
-_SF_BYTEBUFFER_TEM
-void _SF_BYTEBUFFER swap(_SF_BYTEBUFFER_A& other) noexcept {
+SCRIPTFORGE_BYTEBUFFER_TEM
+void SCRIPTFORGE_BYTEBUFFER swap(SCRIPTFORGE_BYTEBUFFER_A& other) noexcept {
 	m_buf.swap(other.m_buf);
 }
 
 
-_SF_BYTEBUFFER_TEM
-const _SF_BYTEBUFFER container& _SF_BYTEBUFFER underlying() const {
+SCRIPTFORGE_BYTEBUFFER_TEM
+const SCRIPTFORGE_BYTEBUFFER container& SCRIPTFORGE_BYTEBUFFER underlying() const {
 	return m_buf;
 }
 
-_SF_BYTEBUFFER_TEM
-std::string _SF_BYTEBUFFER to_string() const {
+SCRIPTFORGE_BYTEBUFFER_TEM
+std::string SCRIPTFORGE_BYTEBUFFER to_string() const {
 	return std::string{
 		reinterpret_cast<const char*>(m_buf.data()),
 		m_buf.size()
 	};
 }
 
-_SF_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER_TEM
 template<isHex HexTag>
-std::string _SF_BYTEBUFFER to_hex() const {
+std::string SCRIPTFORGE_BYTEBUFFER to_hex() const {
 	constexpr const auto& tbl = HexTag::set;
 	constexpr auto sep = HexTag::separate;
 
@@ -605,8 +605,8 @@ std::string _SF_BYTEBUFFER to_hex() const {
 	return out;
 }
 
-_SF_BYTEBUFFER_TEM
-std::string _SF_BYTEBUFFER to_hex(const bool uppercase, const bool separate) const {
+SCRIPTFORGE_BYTEBUFFER_TEM
+std::string SCRIPTFORGE_BYTEBUFFER to_hex(const bool uppercase, const bool separate) const {
 	if (uppercase && separate)
 		return to_hex<Hex::HexUppercaseSeparate>();
 	else if (uppercase)
@@ -617,60 +617,60 @@ std::string _SF_BYTEBUFFER to_hex(const bool uppercase, const bool separate) con
 		return to_hex<Hex::Hex>();
 }
 
-_SF_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER_TEM
 template<isBin BinTag>
-std::string _SF_BYTEBUFFER to_bin() const {
-
+std::string SCRIPTFORGE_BYTEBUFFER to_bin() const {
+	return utf8::replace_invalid(std::u8string(m_buf.begin(), m_buf.end()), BinTag::bin);
 }
 
 
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER operator container() const {
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER operator container() const {
 	return underlying();
 }
 
 
 
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER_A& _SF_BYTEBUFFER operator=(const _SF_BYTEBUFFER_A& other) {
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER_A& SCRIPTFORGE_BYTEBUFFER operator=(const SCRIPTFORGE_BYTEBUFFER_A& other) {
 	m_buf = other.m_buf;
 	return *this;
 }
 
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER_A& _SF_BYTEBUFFER operator=(_SF_BYTEBUFFER_A&& other) noexcept {
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER_A& SCRIPTFORGE_BYTEBUFFER operator=(SCRIPTFORGE_BYTEBUFFER_A&& other) noexcept {
 	m_buf = std::move(other.m_buf);
 	return *this;
 }
 
-_SF_BYTEBUFFER_TEM
-_SF_BYTEBUFFER_A& _SF_BYTEBUFFER operator=(std::initializer_list<value_type> ilist) {
+SCRIPTFORGE_BYTEBUFFER_TEM
+SCRIPTFORGE_BYTEBUFFER_A& SCRIPTFORGE_BYTEBUFFER operator=(std::initializer_list<value_type> ilist) {
 	m_buf = ilist;
 	return *this;
 }
 
 
-_SF_BYTEBUFFER_TEM
-auto operator<=>(const _SF_BYTEBUFFER_A& lhs, const _SF_BYTEBUFFER_A& rhs) {
+SCRIPTFORGE_BYTEBUFFER_TEM
+auto operator<=>(const SCRIPTFORGE_BYTEBUFFER_A& lhs, const SCRIPTFORGE_BYTEBUFFER_A& rhs) {
 	return lhs.m_buf <=> rhs.m_buf;
 }
 
 
-_SF_BYTEBUFFER_TEM_BEGIN, class U _SF_BYTEBUFFER_TEM_END
-constexpr auto erase(_SF_BYTEBUFFER_A& c, const U& value) {
+SCRIPTFORGE_BYTEBUFFER_TEM_BEGIN, class U SCRIPTFORGE_BYTEBUFFER_TEM_END
+constexpr auto erase(SCRIPTFORGE_BYTEBUFFER_A& c, const U& value) {
 	return std::erase(c.m_buf, value);
 }
 
-_SF_BYTEBUFFER_TEM_BEGIN, class Pred _SF_BYTEBUFFER_TEM_END
-constexpr auto erase_if(_SF_BYTEBUFFER_A& c, Pred pred) {
+SCRIPTFORGE_BYTEBUFFER_TEM_BEGIN, class Pred SCRIPTFORGE_BYTEBUFFER_TEM_END
+constexpr auto erase_if(SCRIPTFORGE_BYTEBUFFER_A& c, Pred pred) {
 	return std::erase_if(c.m_buf, pred);
 }
 
-_SF_BUFFER_LITERALS_BEGIN
+SCRIPTFORGE_BUFFER_LITERALS_BEGIN
 ByteBuffer operator""_sf_bb(const char* c, std::size_t n) {
 	auto sp = std::span(reinterpret_cast<const uint8_t*>(c), n);
 	return ByteBuffer(sp);
 }
-_SF_BUFFER_LITERALS_END
+SCRIPTFORGE_BUFFER_LITERALS_END
 
-_SF_BUFFER_END
+SCRIPTFORGE_BUFFER_END

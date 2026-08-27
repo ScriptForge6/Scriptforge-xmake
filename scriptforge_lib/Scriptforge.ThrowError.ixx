@@ -30,7 +30,7 @@ import Scriptforge.Local;
 namespace Scriptforge::Throw {
     export
         [[noreturn]] void throwError(
-            _SF_CODE ErrCode code,
+            SCRIPTFORGE_CODE ErrCode code,
             std::string_view func,
             const Scriptforge::Local::Lang& lang,
             Scriptforge::Msg::InformationLevel level = Scriptforge::Msg::InformationLevel::Error
@@ -38,7 +38,7 @@ namespace Scriptforge::Throw {
     export
         template <typename... Args>
     [[noreturn]] void throwError(
-        _SF_CODE ErrCode code,
+        SCRIPTFORGE_CODE ErrCode code,
         const std::string& func,
         const Scriptforge::Local::Lang& lang,
         Scriptforge::Msg::InformationLevel level = Scriptforge::Msg::InformationLevel::Error,
@@ -49,13 +49,13 @@ namespace Scriptforge::Throw {
 namespace Scriptforge::Throw {
     
     void throwError(
-        _SF_CODE ErrCode code,
+        SCRIPTFORGE_CODE ErrCode code,
         std::string_view func,
         const Scriptforge::Local::Lang& lang,
         Scriptforge::Msg::InformationLevel level
     ) {
-        std::string baseStr = lang.atJ("SFError").at(std::to_string(int(code)));
-        throw Scriptforge::Err::BasicError<_SF_CODE ErrCode> {
+        std::string baseStr = lang.atJ("SCRIPTFORGEError").at(std::to_string(int(code)));
+        throw Scriptforge::Err::BasicError<SCRIPTFORGE_CODE ErrCode> {
             code,
             std::string(func) + ": " + baseStr,
             level
@@ -64,14 +64,14 @@ namespace Scriptforge::Throw {
 
     template <typename... Args>
     void throwError(
-        _SF_CODE ErrCode code,
+        SCRIPTFORGE_CODE ErrCode code,
         const std::string& func,
         const Scriptforge::Local::Lang& lang,
         Scriptforge::Msg::InformationLevel level,
         Args&&... args
     ) {
-        std::string baseStr = std::format(lang.atJ("SFError").at(std::to_string(int(code))), std::forward<Args>(args)...);
-        throw Scriptforge::Err::BasicError<_SF_CODE ErrCode> {
+        std::string baseStr = std::format(lang.atJ("SCRIPTFORGEError").at(std::to_string(int(code))), std::forward<Args>(args)...);
+        throw Scriptforge::Err::BasicError<SCRIPTFORGE_CODE ErrCode> {
             code,
             std::string(func) + ": " + baseStr,
 			level
