@@ -4,7 +4,7 @@
 
 #define SCRIPTFORGE_BEGIN namespace Scriptforge {
 #define SCRIPTFORGE_END }
-#define SCRIPTFORGE /*::*/Scriptforge::
+#define SCRIPTFORGE Scriptforge::
 
 
 #define SCRIPTFORGE_ARGV_BEGIN SCRIPTFORGE_BEGIN inline namespace Argv {
