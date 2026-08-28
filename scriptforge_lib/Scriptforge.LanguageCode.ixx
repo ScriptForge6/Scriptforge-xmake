@@ -22,7 +22,7 @@ module;
 
 export module Scriptforge.LanguageCode;
 
-SF_CODE_BEGIN
+SCRIPTFORGE_CODE_BEGIN
 
 /* -------------------------------------------------------------
  *  语言枚举定义（完整版本）
@@ -365,4 +365,4 @@ export inline const std::map<Language, std::string>& ENUM_TO_ISO639_1() {
     return ENUM_TO_ISO639_1;
 }
 
-SF_CODE_END
+SCRIPTFORGE_CODE_END

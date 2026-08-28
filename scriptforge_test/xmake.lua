@@ -32,10 +32,13 @@ target(TEST_NAME)
         pre.run(local_ANTIDEB_RAND_DIR)
     end)
 
-
     add_includedirs(LIB_DIR)
+    add_includedirs(DETAIL_DIR)
+    
     add_files(path.join(LIB_DIR, "*.ixx"))
     add_files(path.join(LIB_DIR, "*.cpp"))
+    add_files(path.join(DETAIL_DIR, "*.ixx"))
+    add_files(path.join(DETAIL_DIR, "*.cpp"))
     add_files(path.join(TEST_DIR, "*.ixx"))
     add_files(path.join(TEST_DIR, "*.cpp"))
 target_end()

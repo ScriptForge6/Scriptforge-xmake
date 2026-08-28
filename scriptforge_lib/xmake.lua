@@ -34,9 +34,14 @@ target(LIB_NAME)
         import("pre", {always_build = true})
         pre.run(local_ANTIDEB_RAND_DIR)
     end)
+
+    add_includedirs(LIB_DIR)
+    add_includedirs(DETAIL_DIR)
     
     add_files(path.join(LIB_DIR, "*.ixx"))
     add_files(path.join(LIB_DIR, "*.cpp"))
+    add_files(path.join(DETAIL_DIR, "*.ixx"))
+    add_files(path.join(DETAIL_DIR, "*.cpp"))
     add_headerfiles(path.join(LIB_DIR, "*.hpp"))
 
     add_extrafiles(path.join(LANG_DIR, "*.json"))
