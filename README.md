@@ -522,14 +522,11 @@ Scriptforge-xmake
 │   └── xmake.lua
 ├── repo_tree.md
 ├── scriptforge_lib
-│   ├── Scriptforge.AntiDebug.RandomDefine.ixx
-│   ├── Scriptforge.AntiDebug.cpp
 │   ├── Scriptforge.AntiDebug.ixx
 │   ├── Scriptforge.Argv.ixx
 │   ├── Scriptforge.Base64.ixx
 │   ├── Scriptforge.ByteBuffer.ixx
 │   ├── Scriptforge.Concept.ixx
-│   ├── Scriptforge.Define.hpp
 │   ├── Scriptforge.Err.ixx
 │   ├── Scriptforge.ErrCode.ixx
 │   ├── Scriptforge.LanguageCode.ixx
@@ -544,6 +541,10 @@ Scriptforge-xmake
 │   ├── Scriptforge.Tree.ixx
 │   ├── Scriptforge.Version.ixx
 │   ├── Scriptforge.ixx
+│   ├── detail
+│   │   ├── Scriptforge.AntiDebug.RandomDefine.ixx
+│   │   ├── Scriptforge.AntiDebug.cpp
+│   │   └── Scriptforge.Define.hpp
 │   ├── lang
 │   │   ├── en.json
 │   │   └── zh.json
