@@ -30,7 +30,7 @@ jobs:
         run: echo '```' > repo_tree.md
 
       - name: 生成目录树，覆盖 repo_tree.md
-        run: tree . -L 8 --ignore ".git,x64,x86,Debug,Release,.vs,GeneratedTools" >> repo_tree.md
+        run: tree . -L 8 --no-hide-dotfiles --ignore ".git,x64,x86,Debug,Release,.vs,GeneratedTools" >> repo_tree.md
 
       - name: 输出```到repo_tree.md
         run: echo '```' >> repo_tree.md
