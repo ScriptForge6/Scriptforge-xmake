@@ -16,40 +16,45 @@ English | [简体中文](README‑CN.md)
 ---
 
 ## ⚠️ Maintenance Notice
+
 This library is currently undergoing major refactoring and updates.
 Please note:
 - **Compilation Errors**: The current version may contain compilation errors
 - **API Stability**: API stability is not guaranteed during this period
 - **Partial Features**: Some functions may be temporarily unavailable
 
-## We recommend using the latest stable release until the refactor is finished.
+We recommend using the latest stable release until the refactor is finished.
+
+---
 
 ## Important Notes
 
-## This project targets the **C++23** standard. Compiler support for C++23 remains inconsistent across toolchains, so this library is not usable with certain compilers. Compilation success is prioritized for **MSVC**, which is also the author’s daily main‑compiler. GCC and Clang support will be added incrementally alongside compiler‑ and project‑level improvements and is not guaranteed.
+This project targets the **C++23** standard. Compiler support for C++23 remains inconsistent across toolchains, so this library is not usable with certain compilers. Compilation success is prioritized for **MSVC**, which is also the author’s daily main‑compiler. GCC and Clang support will be added incrementally alongside compiler‑ and project‑level improvements and is not guaranteed.
+
+---
 
 ## Quick Start
 
 - [**AntiDebug**](#antidebug)
-    - [**Basic Usage**](#basic%E2%80%91usage)
-    - [**Custom Anti‑Cheat Detection & Self‑Termination Logic**](#custom%E2%80%91anti%E2%80%91cheat%E2%80%91detection%E2%80%91&%E2%80%91self%E2%80%91termination%E2%80%91logic)
+    - [**Basic Usage**](#basic-usage)
+    - [**Custom Anti‑Cheat Detection & Self‑Termination Logic**](#custom-anti-cheat-detection--self-termination-logic)
 - [**Argv**](#argv)
 - [**Base64**](#base64)
-    - [**Basic Base64 Usage**](#basic%E2%80%91base64%E2%80%91usage)
-    - [**BasicBase64 for Custom Encoding Formats (Not Recommended)**](#basicbase64%E2%80%91for%E2%80%91custom%E2%80%91encoding%E2%80%91formats%E2%80%91not%E2%80%91recommended)
+    - [**Basic Base64 Usage**](#basic-base64-usage)
+    - [**BasicBase64 for Custom Encoding Formats (Not Recommended)**](#basicbase64-for-custom-encoding-formats-not-recommended)
 - [**Err**](#err)
-    - [**Use Error Directly**](#use%E2%80%91error%E2%80%91directly)
-    - [**Use BasicError**](#use%E2%80%91basicerror)
+    - [**Use Error Directly**](#use-error-directly)
+    - [**Use BasicError**](#use-basicerror)
 - [**LanguageCode**](#languagecode)
 - [**Local**](#local)
-    - [**Language Enum**](#language%E2%80%91enum)
-    - [**LANG_NAME_TO_ENUM**](#lang_name_to_enum)
-    - [**ISO639_1_TO_ENUM**](#iso639_1_to_enum)
-    - [**ENUM_TO_LANG_NAME**](#enum_to_lang_name)
-    - [**ENUM_TO_ISO639_1**](#enum_to_iso639_1)
+    - [**Language Enum**](#language-enum)
+    - [**LANG_NAME_TO_ENUM**](#lang_name_to_enum)
+    - [**ISO639_1_TO_ENUM**](#iso639_1_to_enum)
+    - [**ENUM_TO_LANG_NAME**](#enum_to_lang_name)
+    - [**ENUM_TO_ISO639_1**](#enum_to_iso639_1)
 - [**Msg**](#msg)
-    - [**Basic Message Usage**](#basic%E2%80%91message%E2%80%91usage)
-    - [**InformationLevel**](#informationlevel)
+    - [**Basic Message Usage**](#basic-message-usage)
+    - [**InformationLevel**](#informationlevel)
 - [**Pch**](#pch)
 
 ### AntiDebug
