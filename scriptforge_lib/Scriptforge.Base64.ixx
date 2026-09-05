@@ -90,14 +90,29 @@ public:
     BasicBase64() = default;
     BasicBase64(const BasicBase64&) = default;
     BasicBase64(BasicBase64&&) = default;
-    BasicBase64(std::string_view base, const Scriptforge::Local::Lang& lang);
-    BasicBase64(const container& raw, const Scriptforge::Local::Lang& lang);
+    BasicBase64(std::string_view base, const Scriptforge::Local::Lang& lang = SCRIPTFORGE_CODE neutral);
+    BasicBase64(const container& raw, const Scriptforge::Local::Lang& lang = SCRIPTFORGE_CODE neutral);
     void set(std::string_view base);
     void set(const container& raw);
     void setLang(const Scriptforge::Local::Lang& lang);
     std::string encode() const;
     container decode() const;
 private:
+    inline static constexpr std::array<uint8_t, 256> rev_table = []() constexpr {
+        std::array<uint8_t, 256> t{};
+        t.fill(0xFF);
+        for (size_t idx = 0; idx < 64; ++idx) {
+            unsigned char c = static_cast<unsigned char>(CharSet::set[idx]);
+            t[c] = static_cast<uint8_t>(idx);
+        }
+        return t;
+        }();
+
+    static constexpr std::optional<uint8_t> lookup(char ch) noexcept {
+        uint8_t v = rev_table[static_cast<uint8_t>(ch)];
+        if (v == 0xFF) return std::nullopt;
+        return v;
+    }
     std::variant<std::string, container> m_base;
     Scriptforge::Local::Lang m_lang;
 };
@@ -141,7 +156,9 @@ std::string SCRIPTFORGE_BASE64 encode() const {
     size_t len = buf.size();
     uint8_t mod = len % 3;
 
-    std::string temp_out; // 先用临时串，不污染m_base直到全部成功
+    std::string temp_out;
+    const size_t estimated_out = ((len + 2) / 3) * 4;
+	temp_out.reserve(estimated_out);
 
     // 处理完整3字节块
     size_t full_block_count = (len - mod) / 3;
@@ -199,10 +216,79 @@ std::string SCRIPTFORGE_BASE64 encode() const {
 
 SCRIPTFORGE_BASE64_TEM
 SCRIPTFORGE_BASE64 container SCRIPTFORGE_BASE64 decode() const {
+#if 0
     if (std::holds_alternative<container>(m_base)) {
         return std::get<container>(m_base);
     }
+    const std::string& input_str = std::get<std::string>(m_base);
 
+    std::string_view src = input_str;
+    if constexpr (CharSet::padding_char.has_value())
+    {
+        char pad = CharSet::padding_char.value();
+        while (!src.empty() && src.back() == pad)
+        {
+            src.remove_suffix(1);
+        }
+    }
 
+    if (src.size() == 1) {
+        Scriptforge::ErrCode::throwError(m_lang, "Base64 invalid length");
+    }
+
+    std::vector<uint8_t> out_bytes;
+    out_bytes.reserve(src.size() * 3 / 4);
+
+    const size_t src_len = src.size();
+    size_t i = 0;
+
+    // 完整4字符块
+    for (; i + 3 < src_len; i += 4) {
+        auto v0 = lookup(src[i]);
+        auto v1 = lookup(src[i + 1]);
+        auto v2 = lookup(src[i + 2]);
+        auto v3 = lookup(src[i + 3]);
+
+        if (!v0 || !v1 || !v2 || !v3) {
+            Scriptforge::ErrCode::throwError(m_lang, "Base64 invalid character");
+        }
+
+        uint32_t bits = (static_cast<uint32_t>(*v0) << 18)
+            | (static_cast<uint32_t>(*v1) << 12)
+            | (static_cast<uint32_t>(*v2) << 6)
+            | static_cast<uint32_t>(*v3);
+
+        out_bytes.push_back(static_cast<uint8_t>((bits >> 16) & 0xFF));
+        out_bytes.push_back(static_cast<uint8_t>((bits >> 8) & 0xFF));
+        out_bytes.push_back(static_cast<uint8_t>(bits & 0xFF));
+    }
+
+    // 处理剩余字符
+    const size_t remain = src_len - i;
+    if (remain == 2) {
+        auto v0 = lookup(src[i]);
+        auto v1 = lookup(src[i + 1]);
+        if (!v0 || !v1) {
+            Scriptforge::ErrCode::throwError(m_lang, "Base64 invalid character");
+        }
+        uint32_t bits = (static_cast<uint32_t>(*v0) << 18) | (static_cast<uint32_t>(*v1) << 12);
+        out_bytes.push_back(static_cast<uint8_t>((bits >> 16) & 0xFF));
+    }
+    else if (remain == 3) {
+        auto v0 = lookup(src[i]);
+        auto v1 = lookup(src[i + 1]);
+        auto v2 = lookup(src[i + 2]);
+        if (!v0 || !v1 || !v2) {
+            Scriptforge::ErrCode::throwError(m_lang, "Base64 invalid character");
+        }
+        uint32_t bits = (static_cast<uint32_t>(*v0) << 18)
+            | (static_cast<uint32_t>(*v1) << 12)
+            | (static_cast<uint32_t>(*v2) << 6);
+        out_bytes.push_back(static_cast<uint8_t>((bits >> 16) & 0xFF));
+        out_bytes.push_back(static_cast<uint8_t>((bits >> 8) & 0xFF));
+    }
+
+    return container{ out_bytes.data(), out_bytes.size() };
+#endif
 }
 SCRIPTFORGE_BASE_END
